@@ -3,87 +3,117 @@ from pyem import Em
 import numpy as np
 
 class Sim:
-    """The MR simulation object"""
+    """The main MR simulation object"""
 
-    def __init__(self,num_ems,main_field,pulse_sequence):
+    def __init__(self,em_magnetizations,em_positions,em_velocities,em_gyromagnetic_ratio,em_equilibrium_magnetization,main_field,pulse_sequence):
         """Initializes the MR simulation
         Params:
-            num_ems: number of Em objects to simulate
-            time_step_seconds: time step in seconds
-            gyromagnetic_ratio: gyromagnetic ratio
-            main_field_tesla: main magnetic field in Tesla
-            pulse_sequence: list of Pulse objects
-        Returns:
-            none
+            em_magnetizations: (num_ems*3 numpy array of float) the initial magnetizations of the ems
+            em_positions: (num_ems*3 numpy array of floats) the initial positions of the ems
+            em_velocities: (num_ems*3 numpy array of floats) the initial velocities of the ems
+            em_gyromagnetic_ratio: (float) the gyromagnetic ratio of the ems
+            em_equilibrium_magnetization: (positive float) the equilibrium magnetization of the ems
+            main_field: (positive float) the main field strength
+            pulse_sequence: (list of Pulse objects) the pulse sequence
         """
-        # Exceptions
-        if not isinstance(num_ems,int):
-            raise TypeError("num_ems must be an int")
-        if not isinstance(main_field,float):
-            raise TypeError("main_field_tesla must be a float")
-        if not isinstance(pulse_sequence,list):
-            raise TypeError("pulse_sequence must be a list")
-        for item in pulse_sequence:
-            if not isinstance(item,Pulse):
-                raise TypeError("each item of pulse_sequence must be a Pulse object")
+        # Check params
+        if (em_magnetizations.dtype != np.float64) or (em_magnetization.ndim != 2) or (em_magnetization.shape[1] != 3):
+            raise TypeError("em_magnetizations must be a num_ems*3 numpy array of floats")
+        if (em_positions.dtype != np.float64) or (em_positions.ndim != 2) or (em_positions.shape[1] != 3):
+            raise TypeError("em_positions must be a num_ems*3 numpy array of floats")
+        if (em_velocities.dtype != np.float64) or (em_velocities.ndim != 2) or (em_velocities.shape[1] != 3):
+            raise TypeError("em velocities must be a num_ems*3 numpy array of float")
+        if not (em_magnetizations.shape[0] == em_positions.shape[0] == em_velocities.shape[0]):
+            raise ValueError("em_magnetizations, em_positions, em_velocities must have the same number of rows (num_ems)")
+        if not isinstance(em_gyromagnetic_ratio,float):
+            raise TypeError("em_gyromagnetic_ratio must be a float")
+        if (not isinstance(em_equilibrium_magnetization,float)) or (em_equilibrium_magnetization <= 0):
+            raise TypeError("em_equilibrium_magnetization must be a positive float")
+        if (not isinstance(main_field,float)) or (main_field <= 0):
+            raise TypeError("main_field must be a positive float")
+        if (not isinstance(pulse_sequence,list)) or (not all([isinstance(item,Pulse) for item in pulse_sequence])):
+            raise TypeError("pulse_sequence must be a list of Pulse objects")
         # Main
-        self.num_ems = num_ems
+        self.num_ems = em_positions.shape[0]
         self.B0 = main_field
         self.pulse_sequence = pulse_sequence
         self.ems = []
         for em_no in range(self.num_ems):
-            magnetization = np.array([1.,0,0])
-            position = np.array([float(em_no),0,0])
-            velocity = np.array([0.,0,0])
-            gyromagnetic_ratio = 1.0
-            equilibrium_magnetization = 1.0
-            self.ems.append(Em(magnetization,position,velocity,gyromagnetic_ratio,equilibrium_magnetization))     
+            magnetization = em_magnetizations[em_no,:]
+            position = em_positions[em_no,:]
+            velocity = em_velocities[em_no,:]
+            self.ems.append(Em(magnetization,position,velocity,em_gyromagnetic_ratio,em_equilibrium_magnetization))     
 
     def run_sim(self):
-        """Runs the simulation"""
+        """Runs the simulation
+        Returns:
+            mr_signals: mr_signals """
         mr_signals = []
         for pulse in self.pulse_sequence:
             mr_signal = self._apply_pulse(pulse)
-            mr_signals.append(mr_signal)
+            if pulse.signal_collected:
+                mr_signals.append(mr_signal)
         return mr_signals
 
-    def _find_T1(self,r):
+    def _find_T1(self,position):
         """Returns the T1 at given position
         Params:
-            r: position
+            position: (numpy 3-vector of floats) position
         Returns:
-            T1: T1 value at position r
+            T1: T1 relaxation time at position
         """
+        # Check params
+        if (position.dtype != np.float64) or (position.shape != (3,)):
+            raise TypeError("position must be a numpy 3-vector of floats")
+        # Main
         return 1.0
 
-    def _find_T2(self,r):
+    def _find_T2(self,position):
         """Returns the T2 at given position
         Params:
-            r: position
+            position: (numpy 3-vector of floats) position
         Returns:
-            T2: T1 value at position r
+            T2: T2 relaxation time at position
         """
+        # Check params
+        if (position.dtype != np.float64) or (position.shape != (3,)):
+            raise TypeError("position must be a numpy 3-vector of floats")
+        # Main
         return 1.0
 
-    def _find_Bz(self,r,gx,gy):
-        """Returns the longitudinal field at given position
+    def _find_Bz(self,position,Gx,Gy):
+        """Returns the longitudinal field at a given position with applied gradients
         Params:
-            r: position
+            position: (numpy 3-vector of floats) position
+            Gx: (float) gradient in x direction at position
+            Gy: (float) gradient in y direction at position
         Returns:
-            Bz: field in longitudinal direction
+            Bz: field in longitudinal direction at position
         """
-        return self.B0 + gx*r[0] + gy*r[1]
+        # Check params
+        if (position.dtype != np.float64) or (position.shape != (3,)):
+            raise TypeError("position must be a numpy 3-vector of floats")
+        if not isinstance(Gx,float):
+            raise TypeError("Gx must be a float")
+        if not isinstance(Gy,float):
+            raise TypeError("Gy must be a float")
+        # Main
+        return self.B0 + Gx*r[0] + Gy*r[1]
 
     def _apply_pulse(self,pulse):
         """Simulates the effect of a pulse on the ems
         Params:
-            pulse: a Pulse object
+            pulse: (Pulse) the applied pulse
         Returns:
-            mr_signal: MR signal
+            mr_signal: mr signal collected during pulse
         """
-        mr_signal = np.zeros(np.sum(pulse.readout),dtype=np.complex)
-        mr_signal_index = 0
+        # Check params
+        if not isinstance(pulse,Pulse):
+            raise TypeError("pulse must be a Pulse object")
+        # Main
         if pulse.mode == 'free':
+            mr_signal = np.zeros(np.sum(pulse.readout),dtype=np.complex)
+            mr_signal_index = 0
             for step_no in range(pulse.length):
                 if pulse.readout[step_no]:
                     mr_signal[mr_signal_index] = self._readout()
@@ -98,11 +128,12 @@ class Sim:
                     Bz = self._find_Bz(r_avg,pulse.Gx[step_no],pulse.Gy[step_no])
                     em.precess_and_relax(T1,T2,Bz,pulse.delta_t)
         elif pulse.mode == 'excite':
+            mr_signal = None
             pass
         return mr_signal   
 
     def _readout(self):
-        """Read out the MR signal by summing transverse magnetization of all ems
+        """Computes the MR signal by summing transverse magnetization of all ems
         Returns:
             mr_signal: the MR signal
         """

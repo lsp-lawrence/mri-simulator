@@ -30,6 +30,7 @@ class Em:
         self.v = velocity
         self.gamma = gyromagnetic_ratio
         self.mu0 = equilibrium_magnetization
+        self.flip_quaternion = Quaternion(1) # Rotation quaterion for flip from excitation
 
     def move(self,motion_type,delta_t):
         """Updates position according to the type of motion
@@ -40,7 +41,7 @@ class Em:
         # Check params
         valid_motion_types = ['none','inertial']
         if (not isinstance(motion_type,str)) or (motion_type not in valid_motion_types):
-            raise TypeError("motion_type must be a string and one of " + ','.join(valid_motion_types))
+            raise TypeError("motion_type must be a string and one of: " + ','.join(valid_motion_types))
         if (not isinstance(delta_t,float)) or (delta_t <= 0):
             raise TypeError("delta_t must be a positive float")
         # Main
@@ -71,3 +72,32 @@ class Em:
         self.mu[0] = m.real
         self.mu[1] = m.imag
         self.mu[2] = self.mu0 + (self.mu[2] - self.mu0)*np.exp(-delta_t/T1)
+
+    def update_flip_quaternion(self,B1x,B1y,Gz,delta_t):
+        """Updates flip quaternion assuming excitation
+        Params:
+            B1x: (float) RF pulse modulation in x direction of rotating frame
+            B1y: (float) RF pulse modulaiton in y direction of rotating frame
+            Gz: (float) gradient in z
+            delta_t: (positive float) time step
+        """
+        # Check params
+        if not isinstance(B1x,float):
+            raise TypeError("B1x must be a float")
+        if not isinstance(B1y,float):
+            raise TypeError("B1y must be a float")
+        if not isinstance(Gz,float):
+            raise TypeError("Gz must be a float")
+        if (not isinstance(delta_t,float)) or (delta_t <= 0):
+            raise TypeError("delta_t must be a positive float")
+        # Main
+        Beff = np.array([B1x,B1y,Gz*self.r[2]])
+        Beff_norm = np.linalg.norm(Beff)
+        flip_axis = Beff/Beff_norm
+        flip_angle = self.gamma*Beff_norm*delta_t
+        self.flip_quaternion = self.flip_quaternion*Quaternion(axis=flip_axis,angle=flip_angle)
+
+    def flip(self):
+        """Updates magnetization at end of excitation pulse and resets flip quaternion"""
+        self.mu = self.flip_quaternion.rotate(self.mu)
+        self.flip_quaternion = Quaternion(1)
