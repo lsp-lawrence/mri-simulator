@@ -43,4 +43,34 @@
 
 \section{Excitation pulses in our simulator}
 
+\begin{frame}
+\begin{itemize}
+\item To test my excitation routine, I initialized a simulation with 200 stationary ems evenly spaced along the $z$ axis between -10 m and 10 m. 
+\item I applied a Gaussian-windowed sinc excitation pulse with duration 5.0 seconds, 10.0 seconds, and 20.0 seconds.
+\item The transverse magnetization profile from the simulation (``Simulation") and from the small-tip-angle solution (``Theory") are shown in the following figures.
+\item I am not sure why the transverse magnetization norms are different between simulation and theory, but there is agreement between the two on the spatial extent of the excitation.
+\begin{itemize}
+\item I think the error lies in my coding of the small-tip-angle solution. When I compute the tip angle at the origin by $\alpha = \int \gamma B_1(t) dt$ and compute $\mu_0 \sin(\alpha)$ I get agreement with the simulation ($\mu_0$ = equilibrium longitudinal magnetization).
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Pulse duration 5.0 seconds}
+\begin{center}
+\includegraphics[height=0.8\textheight]{{excitation_pulse-duration-5.0}.pdf}
+\end{center}
+\end{frame}
+
+\begin{frame}{Pulse duration 10.0 seconds}
+\begin{center}
+\includegraphics[height=0.8\textheight]{{excitation_pulse-duration-10.0}.pdf}
+\end{center}
+\end{frame}
+
+\begin{frame}{Pulse duration 20.0 seconds}
+\begin{center}
+\includegraphics[height=0.8\textheight]{{excitation_pulse-duration-20.0}.pdf}
+\end{center}
+\end{frame}
+
 \end{document}

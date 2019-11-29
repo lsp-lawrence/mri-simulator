@@ -17,7 +17,7 @@ class Sim:
             pulse_sequence: (list of Pulse objects) the pulse sequence
         """
         # Check params
-        if (em_magnetizations.dtype != np.float64) or (em_magnetization.ndim != 2) or (em_magnetization.shape[1] != 3):
+        if (em_magnetizations.dtype != np.float64) or (em_magnetizations.ndim != 2) or (em_magnetizations.shape[1] != 3):
             raise TypeError("em_magnetizations must be a num_ems*3 numpy array of floats")
         if (em_positions.dtype != np.float64) or (em_positions.ndim != 2) or (em_positions.shape[1] != 3):
             raise TypeError("em_positions must be a num_ems*3 numpy array of floats")
@@ -47,13 +47,16 @@ class Sim:
     def run_sim(self):
         """Runs the simulation
         Returns:
-            mr_signals: mr_signals """
+            ems: list of ems
+            mr_signals: mr_signals
+        """
         mr_signals = []
         for pulse in self.pulse_sequence:
             mr_signal = self._apply_pulse(pulse)
             if pulse.signal_collected:
                 mr_signals.append(mr_signal)
-        return mr_signals
+        ems = self.ems
+        return ems, mr_signals
 
     def _find_T1(self,position):
         """Returns the T1 at given position
@@ -101,7 +104,7 @@ class Sim:
         if not isinstance(Gz,float):
             raise TypeError("Gz must be a float")
         # Main
-        return self.B0 + Gx*r[0] + Gy*r[1] + Gz*r[2]
+        return self.B0 + Gx*position[0] + Gy*position[1] + Gz*position[2]
 
     def _apply_pulse(self,pulse):
         """Simulates the effect of a pulse on the ems
@@ -123,7 +126,7 @@ class Sim:
                     mr_signal_index = mr_signal_index + 1
                 for em in self.ems:
                     old_r = em.r
-                    motion_type = 'none'
+                    motion_type = 'inertial'
                     em.move(motion_type,pulse.delta_t)
                     r_avg = (old_r+em.r)/2.0
                     T1 = self._find_T1(r_avg)
@@ -135,7 +138,7 @@ class Sim:
             for step_no in range(pulse.length):
                 for em in self.ems:
                     old_r = em.r
-                    motion_type = 'none'
+                    motion_type = 'inertial'
                     em.move(motion_type,pulse.delta_t)
                     r_avg = (old_r+em.r)/2.0
                     Bz = self._find_Bz(r_avg,0.0,0.0,pulse.Gz[step_no])

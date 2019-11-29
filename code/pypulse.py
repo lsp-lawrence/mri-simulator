@@ -26,7 +26,7 @@ class Pulse:
         delta_t = kwargs.get('delta_t')
         if (not isinstance(delta_t,float)) or (delta_t <= 0):
             raise TypeError("delta_t must be a positive float")
-        if self.mode == 'free':
+        if mode == 'free':
             Gx = kwargs.get('Gx')
             Gy = kwargs.get('Gy')
             readout = kwargs.get('readout')
@@ -46,7 +46,7 @@ class Pulse:
             self.readout = readout
             self.length = len(Gx)
             self.signal_collected = any(readout)
-        elif self.mode == 'exicte':
+        elif mode == 'excite':
             B1x = kwargs.get('B1x')
             B1y = kwargs.get('B1y')
             omega_rf = kwargs.get('omega_rf')

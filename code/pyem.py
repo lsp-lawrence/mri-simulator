@@ -27,7 +27,7 @@ class Em:
         # Main
         self.mu = magnetization
         self.r = position
-        self.v = velocity
+        self.v = velocity # A velocity component of None indicates exactly zero velocity in that direction
         self.gamma = gyromagnetic_ratio
         self.mu0 = equilibrium_magnetization
         self.flip_quaternion = Quaternion(1) # Rotation quaterion for flip from excitation
@@ -39,14 +39,12 @@ class Em:
             delta_t: (positive float) time step duration
         """
         # Check params
-        valid_motion_types = ['none','inertial']
+        valid_motion_types = ['inertial']
         if (not isinstance(motion_type,str)) or (motion_type not in valid_motion_types):
             raise TypeError("motion_type must be a string and one of: " + ','.join(valid_motion_types))
         if (not isinstance(delta_t,float)) or (delta_t <= 0):
             raise TypeError("delta_t must be a positive float")
         # Main
-        if motion_type == 'none':
-            pass
         if motion_type == 'inertial':
             self.r = self.r + self.v*delta_t
 
@@ -63,7 +61,7 @@ class Em:
             raise TypeError("T1 must be a positive float")
         if (not isinstance(T2,float)) or (T2 <= 0):
             raise TypeError("T2 must be a positive float")
-        if not isinstance(Bz,float)
+        if not isinstance(Bz,float):
             raise TypeError("Bz must be a float")
         if (not isinstance(delta_t,float)) or (delta_t <= 0):
             raise TypeError("delta_t must be a positive float")
@@ -106,6 +104,6 @@ class Em:
             omega_rf: angular carrier frequency of RF pulse
             pulse_duration: duration of RF pulse
         """
-        self.flip_quaternion = self.flip_quaterion*Quaterion(axis=[0,0,1],angle=omega_rf*pulse_duration)
+        self.flip_quaternion = self.flip_quaternion*Quaternion(axis=[0,0,1],angle=omega_rf*pulse_duration)
         self.mu = self.flip_quaternion.rotate(self.mu)
         self.flip_quaternion = Quaternion(1)
