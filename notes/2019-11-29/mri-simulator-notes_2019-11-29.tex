@@ -1,0 +1,46 @@
+\documentclass[dvipsnames]{beamer}
+\input{mybeamerdefs}
+
+\title{MRI Simulator Notes}
+\author{Liam}
+\date{\today}
+
+\begin{document}
+
+\begin{frame}
+\maketitle
+\end{frame}
+
+\begin{frame}{Tasks}
+\begin{itemize}
+\item I looked into distributed computing using Python.
+\item I looked into random number generation.
+\item I implemented excitation pulses in our simulator.
+\end{itemize}
+\end{frame}
+
+\section{Distributed computing using Python}
+
+\begin{frame}
+\begin{itemize}
+\item The module \href{https://github.com/ray-project/ray}{Ray} seems well-suited to our application.
+\item Ray allows you to modify serial code for distributed computing (using a cluster or in the cloud) by simply adding decorators to existing functions and classes (\href{https://towardsdatascience.com/modern-parallel-and-distributed-python-a-quick-tutorial-on-ray-99f8d70369b8}{reference}).
+\item See the reference page \href{https://ray.readthedocs.io/en/latest/}{here}.
+\end{itemize}
+\end{frame}
+
+\section{Random number generation}
+
+\begin{frame}
+\begin{itemize}
+\item If we want fast random number generation, I think we are better off with a software pseudorandom number generator.
+\item Hardware random number generators create a sequence of numbers that is more truly random; however, software pseudorandom number generators have a higher output rate.
+\item This \href{https://en.wikipedia.org/wiki/Hardware_random_number_generator}{Wikipedia entry} says ``hardware random number generators generally produce only a limited number of random bits per second."
+\item \href{https://www.iacr.org/archive/ches2013/80860154/80860154.pdf}{Cherkaoui et. al. 2013} report on a hardware random number generator that outputs 200 Mb/sec.
+\item Compare with the \href{https://en.wikipedia.org/wiki/Xorshift}{Xorshift} class of software pseudorandom number generators, which outputs (200 million 32-bit ints)/sec = 6.4 Gb/sec (\href{https://scholar.google.ca/scholar?hl=en&as_sdt=0\%2C5&q=xorshift&btnG=}{reference}) .
+\end{itemize}
+\end{frame}
+
+\section{Excitation pulses in our simulator}
+
+\end{document}

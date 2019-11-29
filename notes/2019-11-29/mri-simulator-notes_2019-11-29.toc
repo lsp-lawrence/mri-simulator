@@ -1,0 +1,3 @@
+\beamer@sectionintoc {1}{Distributed computing using Python}{3}{0}{1}
+\beamer@sectionintoc {2}{Random number generation}{5}{0}{2}
+\beamer@sectionintoc {3}{Excitation pulses in our simulator}{7}{0}{3}

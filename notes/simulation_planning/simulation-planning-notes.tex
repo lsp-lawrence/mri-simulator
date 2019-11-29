@@ -1,0 +1,237 @@
+\documentclass{beamer}
+%\input{mybeamerdefs}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,
+linkcolor=blue}
+\newcommand{\real}{\mathbf{R}}
+\DeclareMathOperator{\qvec}{\mathbf{vec}}
+\DeclareMathOperator{\Diag}{\mathbf{Diag}}
+\newcommand{\myemph}[1]{\emph{#1}}
+\title{MRI Simulator Notes}
+\author{Liam}
+\date{\today}
+
+\AtBeginSection[]{
+  \begin{frame}
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+    \usebeamerfont{title}\insertsectionhead\par%
+  \end{beamercolorbox}
+  \vfill
+  \end{frame}
+}
+
+\begin{document}
+
+\begin{frame}
+\maketitle
+\end{frame}
+
+\begin{frame}{Tasks}
+\begin{itemize}
+\item I looked into the use of quaternions to represent rotations in 3D space.
+\item I looked into the means by which two different MRI simulators, SIMRI and JEMRIS, implement a numerical solution to the Bloch equation.
+\end{itemize}
+\end{frame}
+
+\section{Quaternions}
+
+\begin{frame}{Quaternions}
+\begin{itemize}
+\item A quaternion $q$ is a number that can be written in the form
+\begin{equation*}
+q = a + bi + cj + dk\,,
+\end{equation*}
+where $a,b,c,d$ are real numbers and $i,j,k$ are the imaginary units.
+\item The real part of $q$ is the number $a$ and the vector or imaginary part of $q$ is the triple $(b,c,d)$.
+\item The imaginary units follow rules for multiplication $i^2 = j^2 = k^2 = ijk = -1$.
+\item Multiplication of two quaternions is associative but not commutative.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Orientation and Rotation Quaternions}
+\begin{itemize}
+\item Quaternions give a compact way to represent orientations and rotations in 3D space.
+\item Let $(p_1,p_2,p_3) \in \real^3$ be a position vector representing the orientation of an object in 3D space. The corresponding orientation quaternion is
+\begin{equation*}
+p = p_1i+p_2j+p_3k\,.
+\end{equation*}
+\item Let $(u_1,u_2,u_3) \in \real^3$ be a unit vector denoting an axis of rotation let and $\theta \in [0,2\pi]$ be an angle of rotation. The corresponding rotation quaternion is 
+\begin{equation*}
+\begin{aligned}
+q &= \exp(\theta/2(u_1i+u_2j+u_3k))\\
+& = \cos(\theta/2) + (u_1i+u_2j+u_3k)\sin(\theta/2)\,.
+\end{aligned}
+\end{equation*}
+The latter expression follows from a generalization of Euler's formula.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Orientation and Rotation Quaternions}
+\begin{itemize}
+\item The rotation of $(p_1,p_2,p_3)$ about the axis $(u_1,u_2,u_3)$ by angle $\theta$ yields the vector $(p_1',p_2',p_3')$, which may be computed using quaternions as follows:
+\begin{equation*}
+(p_1',p_2',p_3') = \qvec\lbrace qpq^{-1} \rbrace\,.
+\end{equation*}
+\item The rotation is clockwise if viewed along the direction of $(u_1,u_2,u_3)$.
+\item The composition of rotations $q_1$ and $q_2$ may be represented by the single rotation quaternion $q_2q_1$.
+\item \href{https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation}{reference}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Quaternions versus Rotation Matrices}
+\begin{itemize}
+\item The composition of rotations using quaternions requires \myemph{fewer} computations than the composition of rotations using rotation matrices.
+\item Rotating a vector using a quaternion requires \myemph{more} computations than rotating a vector using a rotation matrix.
+\item \href{https://people.csail.mit.edu/bkph/articles/Quaternions.pdf}{reference}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{My thoughts on quaternions}
+\begin{itemize}
+\item Is it more computationally efficient to use quaternions or rotation matrices for our application? It's not clear to me which offers the advantage.
+\end{itemize}
+\end{frame}
+
+%\section{Bloch Equation Simulation}
+%
+%\begin{frame}{Bloch Equation}
+%\begin{itemize}
+%\item Represent the magnetic moment of an em by $\boldsymbol{\mu} = (\mu_x,\mu_y,\mu_z) \in \real^3$. 
+%\item Let the equilibrium longitudinal magnetic moment be $\mu_0$.
+%\item We wish to solve the Bloch equation
+%\begin{equation*}
+%\frac{d\boldsymbol{\mu}}{dt} = \boldsymbol{\mu} \times \gamma \mathbf{B} - \frac{(\mu_z-\mu_0)}{T_1}\mathbf{z} - \frac{(\mu_x\mathbf{x}+\mu_y\mathbf{y})}{T_2}
+%\end{equation*}
+%numerically. The Bloch equation is a system of ODEs, hence we solve it by taking time steps.
+%\item Over the time step $\Delta t$, three processes occur:
+%\begin{enumerate}
+%\item relaxation $\Rightarrow$ $\mu_x$ and $\mu_y$ diminish, $\mu_z$ grows.
+%\item precession $\Rightarrow$ $\boldsymbol{\mu}$ rotates about the $z$ axis.
+%\item excitation $\Rightarrow$ $\boldsymbol{\mu}$ rotates about an axis in the transverse plane.
+%\end{enumerate}
+%\item We simulate in a reference frame rotating about $z$ at the excitation frequency; on-resonance ems do not precess.
+%\end{itemize}
+%\end{frame}
+%
+%\begin{frame}{Relaxation}
+%\begin{itemize}
+%\item Relaxation is captured by
+%\begin{equation*}
+%\boldsymbol{\mu}(t+\Delta t) = A\boldsymbol{\mu}(t)+b\,,
+%\end{equation*}
+%where
+%\begin{equation*}
+%A = \Diag(\exp(-\Delta t/T_2),\exp(-\Delta t/T_2),\exp(-\Delta t/T_1))
+%\end{equation*}
+%and
+%\begin{equation*}
+%b = \qvec(0,0,M_0(1-\exp(-\Delta t/T_1)))\,.
+%\end{equation*}
+%\end{itemize}
+%\end{frame}
+%
+%\begin{frame}{Precession}
+%\begin{itemize}
+%\item Precession is captured by
+%\begin{equation*}
+%\boldsymbol{\mu}(t+\Delta t) = R_z(\omega_z\Delta t)\boldsymbol{\mu}\,.
+%\end{equation*}
+%where $R_z$ is the rotation matrix about the $z$ axis.
+%\item $\omega_z$ is the precession frequency offset of the em in the $z$ direction over the time step (frequency relative to the rotating frame frequency).
+%\end{itemize}
+%\end{frame}
+%
+%\begin{frame}{Free Precession}
+%\begin{itemize}
+%\item Free precession is captured by combining precession and relaxation.
+%\item The relaxation matrix $A$ and the rotation matrix $R_z$ commute; hence, relaxation and precession can be applied in either order.
+%\item Free precession is captured by
+%\begin{equation*}
+%\boldsymbol{\mu}(t+\Delta t) = AR_z(\omega_z\Delta t)\boldsymbol{\mu}(t)+b\,.
+%\end{equation*}
+%\end{itemize}
+%\end{frame}
+%
+%\begin{frame}{Excitation}
+%
+%\end{frame}
+%
+%\begin{frame}{My Remaining Questions}
+%\begin{itemize}
+%\item $T_1$ and $T_2$ vary as a function of position. If an em moves between two positions of different $T_1$/$T_2$ over a time step, which value do we use?
+%\item $B_0$ varies as a function of position and time. 
+%\end{itemize}
+%\end{frame}
+%
+%\begin{frame}{References}
+%\begin{itemize}
+%\item \href{http://mrsrl.stanford.edu/~brian/bloch/}{Brian Hargreaves from Stanford}
+%\end{itemize}
+%\end{frame}
+
+
+\section{Numerical Solution of the Bloch Equation}
+
+\begin{frame}{Bloch Equation}
+\begin{itemize}
+\item Represent the magnetization by $\mathbf{m} = m_x\mathbf{x}+m_y\mathbf{y}+m_z\mathbf{z}$.
+\item Let the equilibrium longitudinal magnetization be $m_0$.
+\item We wish to solve the Bloch equation
+\begin{equation*}
+\frac{d\mathbf{m}}{dt} = \mathbf{m} \times \gamma \mathbf{B} - \frac{(m_z-m_0)}{T_1}\mathbf{z} - \frac{(m_x\mathbf{x}+m_y\mathbf{y})}{T_2}
+\end{equation*}
+numerically.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{SIMRI}
+\begin{itemize}
+\item SIMRI is an MRI simulator from 2005.
+\item SIMRI stores $\mathbf{m}(\mathbf{r},t)$ on a grid.
+\item The magnetization vector is updated according to
+\begin{equation*}
+\mathbf{m}(\mathbf{r},t+\Delta t) = Rot_z(\theta_g)Rot_z(\theta_i)R_{\rm relax}R_{\rm RF}\mathbf{m}(\mathbf{r},t)\,.
+\end{equation*}
+\item $\theta_g$ and $\theta_i$ are precession angle changes due to the applied gradients and field inhomogeneities.
+\item $R_{\rm relax}$ captures relaxation effects on the magnitude of $m_x,m_y,m_z$.
+\item $R_{\rm RF}$ is a rotation by a specified flip angle about a specified axis in the transverse plane due to an RF pulse.
+\item \href{https://www.ncbi.nlm.nih.gov/pubmed/15705518}{reference}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{My thoughts on SIMRI}
+\begin{itemize}
+\item Advantage: Bloch equation is implemented using matrix multiplication alone.
+\item It might be more efficient to implement $Rot_z(\theta_g)Rot_z(\theta_i)R_{\rm RF}$ using quaternions.
+\item Disadvantage: Cannot simulate arbitrary excitations, so ``selective excitation cannot be studied [with the SIMRI approach]" \href{https://www.ncbi.nlm.nih.gov/pubmed/20577987}{reference}.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{JEMRIS}
+\begin{itemize}
+\item JEMRIS stores the magnetization $\mathbf{m}(\mathbf{r},t)$ on a grid.
+\item JEMRIS solves the Bloch equation in cylindrical coordinates using the ODE solver \href{https://computing.llnl.gov/projects/sundials/cvode}{CVODE}.
+\item The magnetic field $\mathbf{B}(\mathbf{r},t)$ can be an arbitrary function of position and time.
+\item Each position and time is associated with a set of physical parameters including $m_0$, $T_1$, $T_2$, $T_2^\star$.
+\item \href{https://www.ncbi.nlm.nih.gov/pubmed/20577987}{reference}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{My thoughts on JEMRIS}
+\begin{itemize}
+\item Advantage: JEMRIS can simulate arbitrary excitations, so we can simulate selective excitation.
+\item Disadvantage: Using the CVODE solver may be too computationally intensive for our purposes.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{We could use a hybrid approach?}
+\begin{itemize}
+\item Maybe we can simulate the excitation phase with the JEMRIS method and the readout phase with the SIMRI method?
+\item Maybe we can simulate the excitation phase with the small-tip-angle solution to the Bloch equation? I'm not sure how this would be implemented, but it might be faster than the JEMRIS method.
+\end{itemize}
+\end{frame}
+
+\end{document}

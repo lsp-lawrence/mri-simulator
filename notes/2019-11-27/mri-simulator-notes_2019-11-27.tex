@@ -1,0 +1,245 @@
+\documentclass{beamer}
+\input{mybeamerdefs}
+\title{MRI Simulator Notes}
+\author{Liam}
+\date{\today}
+
+\begin{document}
+
+\begin{frame}
+\maketitle
+\end{frame}
+
+\begin{frame}{Tasks}
+\begin{itemize}
+\item I looked at the simulation method for excitation and for free precession using rotations and scalings.
+\item I wrote a proposal for the basic structure of our simulation.
+\end{itemize}
+\end{frame}
+
+\section{Simulating excitation}
+
+\begin{frame}{Bloch equation in rotating frame}
+Let $R_z(\theta)$ be the rotation matrix about the z-axis by the angle $\theta$. Assume the magnetic field during excitation is given by
+\begin{equation*}
+\mathbf{B}(z,t) = R_z(\omega t) \underbrace{\begin{bmatrix}B_{1,x}(t)\\B_{1,y}(t)\\B_0+G_z(t)z\end{bmatrix}}_{\mathbf{B}_{\rm rot}(z,t)}\,,
+\end{equation*}
+which corresponds to an excitation pulse with carrier frequency $\omega$ in the transverse plane in the presence of the main field and a time-varying gradient in the longitudinal direction.
+\end{frame}
+
+\begin{frame}
+Consider the Bloch equation in a frame of reference rotating about the $z$ axis at frequency $\omega$. Define the rotating magnetization vector, $\mathbf{M}_{\rm rot}(z,t)$, through the relation
+\begin{equation*}
+\mathbf{M}(z,t) = R_z(\omega t)\mathbf{M}_{\rm rot}(z,t)\,.
+\end{equation*}
+
+In this rotating frame of reference,
+\begin{equation*}
+\frac{d\mathbf{M}_{\rm rot}}{dt} = \mathbf{M}_{\rm rot} \times \gamma \mathbf{B}_{\rm eff}\,,
+\end{equation*}
+where
+\begin{equation*}
+\mathbf{B}_{\rm eff} = \mathbf{B}_{\rm rot} - \frac{\omega}{\gamma}\unit{z}\,.
+\end{equation*}
+Assume $\omega = \gamma B_0$. Then
+\begin{equation*}
+\mathbf{B}_{\rm eff}(z,t) = B_{1,x}(t)\unit{x}+B_{1,y}(t)\unit{y}+G_z(t)z\unit{z}\,.
+\end{equation*}
+\end{frame}
+
+\begin{frame}{Analytical solution for constant $B_1$ and $G_z$}
+Assume the RF pulse modulation and gradient are constant, so $B_{1,x}(t) \equiv B_{1,x}$, $B_{1,y}(t) \equiv B_{1,y}$, $G_z(t) \equiv G_z$, and
+\begin{equation*}
+\mathbf{B}_{\rm eff}(z) =  B_{1,x}\unit{x}+B_{1,y}\unit{y}+G_zz\unit{z}\,.
+\end{equation*}
+
+Solving the Bloch equation in the rotating frame under this assumption, we find $\mathbf{M}_{\rm rot}$ precesses about the axis
+\begin{equation*}
+\mathbf{u}(z) \define \frac{1}{\|\mathbf{B}_{\rm eff}(z)\|}\mathbf{B}_{\rm eff}(z)
+\end{equation*}
+with rotational frequency
+\begin{equation*}
+\gamma \|\mathbf{B}_{\rm eff}(z)\| = \gamma \sqrt{B_{1,x}^2+B_{1,y}^2+(G_zz)^2}\,.
+\end{equation*}
+\end{frame}
+
+\begin{frame}{Numerical solution for time-varying $B_1$ and $G_z$}
+\begin{itemize}
+\item We no longer assume the RF pulse modulation and the gradient are constant. Suppose, however, that these signals are well-approximated by piecewise constant functions with time steps $\Delta t$. Let $t_0$ be the time of excitation and let $t_i \define t_0 + i\Delta t$ for $i = 0,1, 2, \ldots, N$ be the set of times spanning the RF pulse.
+\item During the time interval $[t_i,t_{i+1}]$, $\mathbf{M}_{\rm rot}$ rotates about the axis
+\begin{equation*}
+\mathbf{u}^i(z) \define \frac{1}{\|\mathbf{B}_{\rm eff}(z,t_i)\|}\mathbf{B}_{\rm eff}(z,t_i)
+\end{equation*}
+by the angle
+\begin{equation*}
+\begin{aligned}
+\theta^i(z) &\define \gamma\|\mathbf{B}_{\rm eff}(z,t_i)\|\Delta t\\
+ &= \gamma \Delta t \sqrt{(B_{1,x}(t_i))^2+(B_{1,y}(t_i))^2+(G_z(t_i)z)^2}\,.
+ \end{aligned}
+\end{equation*}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+Therefore, we may compute $\mathbf{M}_{\rm rot}(z,t_N)$ by applying a sequence of rotations to $\mathbf{M}_{\rm rot}(z,t_0)$.
+\end{frame}
+
+\begin{frame}{Implementation using quaternions}
+\begin{itemize}
+\item For each $z$ position, define an initial orientation quaternion $m_0(z)$ with imaginary part $\mathbf{M}_{\rm rot}(z,t_0)$ and zero real part.
+\item Define the rotation quaternion for each time interval $[t_i,t_{i+1}]$
+\begin{equation*}
+q_i(z) \define \exp\left(\frac{\theta_i(z)}{2}(u^i_x(z)\iq+u^i_y(z)\jq+u^i_z(z)\kq)\right)\,.
+\end{equation*}
+\item The total effect of the RF pulse is the rotation quaternion $q_{\rm RF}$ given by the product of the individual rotation quaternions:
+\begin{equation*}
+q_{\rm RF}(z) \define q_N(z) \cdots q_0(z)\,.
+\end{equation*}
+\item The final magnetization is the imaginary part of the orientation quaternion
+\begin{equation*}
+m_N(z) \define q_{\rm RF}(z) m_0(z) q_{\rm RF}(z)^{-1}\,.
+\end{equation*}
+\end{itemize}
+\end{frame}
+
+\section{Simulating free precession}
+
+\begin{frame}{Bloch equation for free precession}
+During free precession, the Bloch equation in the laboratory frame reads
+\begin{equation*}
+\frac{d\mathbf{M}}{dt} = \mathbf{M} \times \gamma \mathbf{B} - \frac{(M_z-M_0)}{T_1}\unit{z} - \frac{(M_x\unit{x}+M_y\unit{y})}{T_2}\,,
+\end{equation*}
+where $M_0$ is the equilibrium magnetization along the $z$ direction.
+
+Let $\mathbf{M} = M_x\unit{x}+M_y\unit{y}+M_z\unit{z}$. Assume that the magnetic field only has a component in the $z$ direction so that $\mathbf{B} = B_z\unit{z}$.
+\end{frame}
+
+\begin{frame}
+Define the transverse magnetization as the complex number $M \define M_x+jM_y$. The Bloch equation divides into two uncoupled equations
+\begin{equation*}
+\begin{aligned}
+\frac{dM}{dt} &= -\left(\frac{1}{T_2}+i \gamma B_z\right)M\\
+\frac{dM_z}{dt} &= -\frac{M_z-M_0}{T_1}\,.
+\end{aligned}
+\end{equation*}
+One may recover the $x$ and $y$ components of the magnetization as $M_x = \Re(M)$ and $M_y = \Im(M)$.
+\end{frame}
+
+\begin{frame}
+Solving these equations, we find
+\begin{equation*}
+M(\mathbf{r},t) = M(\mathbf{r},0)\exp\left(-\frac{t}{T_2(\mathbf{r})}\right)\exp\left(-i\gamma \int_{0}^tB_z(\mathbf{r},t)dt\right)
+\end{equation*}
+and
+\begin{equation*}
+M_z(\mathbf{r},t) = M_0 + (M_z(\mathbf{r},0) - M_0)\exp\left(-\frac{t}{T_1(\mathbf{r})}\right)\,.
+\end{equation*}
+The received MR signal is
+\begin{equation*}
+s(t) = \int M(\mathbf{r},t) d^3\mathbf{r}\,,
+\end{equation*}
+for $t$ in the readout interval.
+\end{frame}
+
+\section{Basic structure of our simulation}
+
+\begin{frame}{Basic setup}
+(Ignore metabolic conversion for now.)
+\begin{itemize}
+\item Define a set of ``em"s.
+\item Each em has (at least) two data attributes: a magnetization vector $\boldsymbol{\mu} \in \real^3$ and a position vector $\mathbf{r} \in \real^3$.
+\item The simulation instantiates a large number of ems.
+\item The simulation reads in a pulse sequence of piecewise constant signals, a set of readout times $\mathsf{T}_{\rm readout}$, and a set of physical parameters $\{T_1(\mathbf{r}), T_2(\mathbf{r})\}$.
+\item The simulation steps through time. At each time step, the simulation can be in one of two states: excitation or free precession.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Excitation}
+\begin{itemize}
+\item During excitation, an RF pulse and a $z$-gradient are applied.
+\item Excitation will cause a rotation of each em's magnetization vector in 3D space.
+\item I propose it will be most efficient to compute this rotation using quaternions.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\begin{itemize}
+\item Assign a rotation quaternion $q_{\rm RF} \define 1+\mathbf{0}$ to each em.
+\item For each time $t_i$ in the excitation interval and each em:
+\begin{itemize}
+\item Compute the position $\mathbf{r}(t_i+\Delta t)$ according to the physics (blood flow, Brownian motion, etc.).
+\item Define
+\begin{equation*}
+\begin{aligned}
+\mathbf{u} &\define \frac{1}{\|\mathbf{B}_{\rm eff}(\mathbf{r}^*,t_i)\|}\mathbf{B}_{\rm eff}(\mathbf{r}^*,t_i)\\
+\theta &\define \gamma\|\mathbf{B}_{\rm eff}(\mathbf{r}^*,t_i)\|\Delta t\,.
+\end{aligned}
+\end{equation*}
+where $\mathbf{r}^* = (\mathbf{r}(t_i)+\mathbf{r}(t_i+\Delta t))/2$.
+\item Update the rotation quaternion using
+\begin{equation*}
+q_{\rm RF} \define \exp(\theta/2(u_x\iq+u_y\jq+u_z\kq))q_{\rm RF}\,.
+\end{equation*}
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\begin{itemize}
+\item At the end of the excitation interval (of length $T$ seconds) update the rotation quaternion to account for the rotation in the laboratory frame:
+\begin{equation*}
+q_{\rm RF} \define \exp(\omega T/2(1\kq))q_{\rm RF}
+\end{equation*}
+
+\item Update the magnetization of each em using
+\begin{equation*}
+\boldsymbol{\mu} \define \Im\left\lbrace q_{\rm RF} (0+\boldsymbol{\mu}) q_{\rm RF}^{-1}\right\rbrace\,.
+\end{equation*}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Free precession}
+\begin{itemize}
+\item During free precession, no RF pulse is applied; the only magnetic field present is along the longitudinal direction.
+\item During free precession, rotation occurs around the $z$-axis only (i.e. rotation occurs in the 2D transverse plane alone).
+\item I propose it will be most efficient to represent this rotation using complex numbers.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Free precession}
+\begin{itemize}
+\item Assign a transverse magnetization $m \define \mu_x+i\mu_y$ to each em.
+\item For each time $t_i$ in the free precession interval and each em:
+\begin{itemize}
+\item If $t_i \in \mathsf{T}_{\rm readout}$ then compute the MR signal sample
+\begin{equation*}
+s(t_i) \define \sum_{k \in \text{(set of ems)}} m_k
+\end{equation*}
+and store in memory.
+\item Compute the position $\mathbf{r}(t_i+\Delta t)$ according to the physics (blood flow, Brownian motion, etc.).
+\item Update the transverse magnetization as
+\begin{equation*}
+m \define m\exp\left(-\frac{\Delta t}{T_2(\mathbf{r}^*)}\right)\exp\left(-i\gamma B_z(\mathbf{r}^*,t_i)\Delta t\right)\,,
+\end{equation*}
+and update the longitudinal magnetization as
+\begin{equation*}
+\mu_z \define \mu_0 + (\mu_z-\mu_0)\exp(-\Delta t/T_1(\mathbf{r}^*))\,,
+\end{equation*}
+where $\mathbf{r}^* = (\mathbf{r}(t_i)+\mathbf{r}_i(t_i+\Delta t))/2$.
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\begin{itemize}
+\item At the end of the free precession interval, for each em, assign
+\begin{equation*}
+\begin{aligned}
+\mu_x &\define \Re(m)\\
+\mu_y &\define \Im(m)\,.
+\end{aligned}
+\end{equation*}
+\end{itemize}
+\end{frame}
+
+\end{document}

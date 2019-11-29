@@ -1,0 +1,2 @@
+\beamer@sectionintoc {1}{Quaternions}{3}{0}{1}
+\beamer@sectionintoc {2}{Numerical Solution of the Bloch Equation}{9}{0}{2}
