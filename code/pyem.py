@@ -2,34 +2,28 @@ import numpy as np
 from pyquaternion import Quaternion
 
 class Em:
-    """The basic unit of a MR simulation"""
+    """The atom of the MR simulation"""
 
     def __init__(self,magnetization,position,velocity,gyromagnetic_ratio,equilibrium_magnetization):
-        """Initializes an em in free precession mode
+        """Initializes an em
         Params:
-            magnetization: numpy 3-vector specifying initial magnetization
-            position: numpy 3-vector specifying intial position
-            velocity: numpy 3-vector specifying initial velocity
-            gyromagnetic_ratio: the gyromagnetic ratio of the species
-            equilibrium_magnetization: longitudinal magnetization in thermal equilibrium
+            magnetization: (numpy 3-vector) initial magnetization
+            position: (numpy 3-vector) intial position
+            velocity: (numpy 3-vector) initial velocity
+            gyromagnetic_ratio: (float) the gyromagnetic ratio of the nucleus
+            equilibrium_magnetization: (positive float) longitudinal magnetization in thermal equilibrium
         """
-        # Exceptions
-        if magnetization.dtype != np.float64:
-            raise TypeError("magnetization must be an array of floats")
-        if position.dtype != np.float64:
-            raise TypeError("position must be an array of floats")
-        if velocity.dtype != np.float64:
-            raise TypeError("velocity must be an array of floats")
+        # Check params
+        if (magnetization.dtype != np.float64) or (magnetization.shape != (3,)):
+            raise TypeError("magnetization must be a numpy 3-vector")
+        if (position.dtype != np.float64) or (position.shape != (3,)):
+            raise TypeError("position must be a numpy 3-vector")
+        if (velocity.dtype != np.float64) or (velocity.shape != (3,)):
+            raise TypeError("velocity must be a numpy 3-vector")
         if not isinstance(gyromagnetic_ratio,float):
             raise TypeError("gyromagnetic_ratio must be a float")
-        if not isinstance(equilibrium_magnetization,float):
-            raise TypeError("equilibrium_magnetization must be a float")
-        if len(magnetization) != 3:
-            raise ValueError("magnetization must be a 3-vector")
-        if len(position) != 3:
-            raise ValueError("position must be a 3-vector")
-        if len(velocity) != 3:
-            raise ValueError("velocity must be a 3-vector")
+        if (not isinstance(equilibrium_magnetization,float)) or (equilibrium_magnetization <= 0):
+            raise TypeError("equilibrium_magnetization must be a positive float")
         # Main
         self.mu = magnetization
         self.r = position
@@ -40,14 +34,15 @@ class Em:
     def move(self,motion_type,delta_t):
         """Updates position according to the type of motion
         Params:
-            motion_type: string specifying motion type
+            motion_type: (string) type of motion
+            delta_t: (positive float) time step duration
         """
-        # Exceptions
+        # Check params
         valid_motion_types = ['none','inertial']
-        if not isinstance(motion_type,str):
-            raise TypeError("motion_type must be a string")
-        if motion_type not in valid_motion_types:
-            raise ValueError("motion_type must be one of: " + ','.join(valid_motion_types))
+        if (not isinstance(motion_type,str)) or (motion_type not in valid_motion_types):
+            raise TypeError("motion_type must be a string and one of " + ','.join(valid_motion_types))
+        if (not isinstance(delta_t,float)) or (delta_t <= 0):
+            raise TypeError("delta_t must be a positive float")
         # Main
         if motion_type == 'none':
             pass
@@ -55,23 +50,22 @@ class Em:
             self.r = self.r + self.v*delta_t
 
     def precess_and_relax(self,T1,T2,Bz,delta_t):
-        """Updates magnetization during free precession
+        """Updates magnetization assuming free precession
         Params:
-            T1: T1 relaxation time
-            T2: T2 relaxation time
-            Bz: longitudinal field
+            T1: (positive float) T1 relaxation time
+            T2: (positive float) T2 relaxation time
+            Bz: (float) longitudinal field
+            delta_t: (positive float) time step duration
         """
-        # Exceptions
-        if not isinstance(T1,float):
-            raise TypeError("T1 must be a float")
-        if not isinstance(T2,float):
-            raise TypeError("T2 must be a float")
-        if not isinstance(Bz,float):
+        # Check params
+        if (not isinstance(T1,float))  or (T1 <= 0):
+            raise TypeError("T1 must be a positive float")
+        if (not isinstance(T2,float)) or (T2 <= 0):
+            raise TypeError("T2 must be a positive float")
+        if not isinstance(Bz,float)
             raise TypeError("Bz must be a float")
-        if T1<=0:
-            raise ValueError("T1 must be positive")
-        if T2<=0:
-            raise ValueError("T2 must be positive")
+        if (not isinstance(delta_t,float)) or (delta_t <= 0):
+            raise TypeError("delta_t must be a positive float")
         # Main
         m = (self.mu[0]+1j*self.mu[1])*np.exp(-delta_t/T2 - 1j*self.gamma*Bz*delta_t)
         self.mu[0] = m.real
