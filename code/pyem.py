@@ -73,12 +73,13 @@ class Em:
         self.mu[1] = m.imag
         self.mu[2] = self.mu0 + (self.mu[2] - self.mu0)*np.exp(-delta_t/T1)
 
-    def update_flip_quaternion(self,B1x,B1y,Gz,delta_t):
+    def update_flip_quaternion(self,B1x,B1y,Bz,omega_rf,delta_t):
         """Updates flip quaternion assuming excitation
         Params:
             B1x: (float) RF pulse modulation in x direction of rotating frame
             B1y: (float) RF pulse modulaiton in y direction of rotating frame
-            Gz: (float) gradient in z
+            Bz: (float) field in z direction in lab frame
+            omega_rf: (positive float) angular carrier frequency of RF pulse
             delta_t: (positive float) time step
         """
         # Check params
@@ -86,18 +87,25 @@ class Em:
             raise TypeError("B1x must be a float")
         if not isinstance(B1y,float):
             raise TypeError("B1y must be a float")
-        if not isinstance(Gz,float):
-            raise TypeError("Gz must be a float")
+        if not isinstance(Bz,float):
+            raise TypeError("Bz must be a float")
+        if (not isinstance(omega_rf,float)) or (omega_rf <= 0):
+            raise TypeError("omega_rf must be a positive float")
         if (not isinstance(delta_t,float)) or (delta_t <= 0):
             raise TypeError("delta_t must be a positive float")
         # Main
-        Beff = np.array([B1x,B1y,Gz*self.r[2]])
+        Beff = np.array([B1x,B1y,Bz-omega_rf/self.gamma])
         Beff_norm = np.linalg.norm(Beff)
         flip_axis = Beff/Beff_norm
         flip_angle = self.gamma*Beff_norm*delta_t
         self.flip_quaternion = self.flip_quaternion*Quaternion(axis=flip_axis,angle=flip_angle)
 
-    def flip(self):
-        """Updates magnetization at end of excitation pulse and resets flip quaternion"""
+    def flip(self,omega_rf,pulse_duration):
+        """Updates magnetization at end of excitation pulse and resets flip quaternion
+        Params:
+            omega_rf: angular carrier frequency of RF pulse
+            pulse_duration: duration of RF pulse
+        """
+        self.flip_quaternion = self.flip_quaterion*Quaterion(axis=[0,0,1],angle=omega_rf*pulse_duration)
         self.mu = self.flip_quaternion.rotate(self.mu)
         self.flip_quaternion = Quaternion(1)

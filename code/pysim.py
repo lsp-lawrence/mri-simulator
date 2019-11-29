@@ -81,12 +81,13 @@ class Sim:
         # Main
         return 1.0
 
-    def _find_Bz(self,position,Gx,Gy):
+    def _find_Bz(self,position,Gx,Gy,Gz):
         """Returns the longitudinal field at a given position with applied gradients
         Params:
             position: (numpy 3-vector of floats) position
             Gx: (float) gradient in x direction at position
             Gy: (float) gradient in y direction at position
+            Gz: (float) gradient in z direction at position
         Returns:
             Bz: field in longitudinal direction at position
         """
@@ -97,8 +98,10 @@ class Sim:
             raise TypeError("Gx must be a float")
         if not isinstance(Gy,float):
             raise TypeError("Gy must be a float")
+        if not isinstance(Gz,float):
+            raise TypeError("Gz must be a float")
         # Main
-        return self.B0 + Gx*r[0] + Gy*r[1]
+        return self.B0 + Gx*r[0] + Gy*r[1] + Gz*r[2]
 
     def _apply_pulse(self,pulse):
         """Simulates the effect of a pulse on the ems
@@ -125,11 +128,21 @@ class Sim:
                     r_avg = (old_r+em.r)/2.0
                     T1 = self._find_T1(r_avg)
                     T2 = self._find_T2(r_avg)
-                    Bz = self._find_Bz(r_avg,pulse.Gx[step_no],pulse.Gy[step_no])
+                    Bz = self._find_Bz(r_avg,pulse.Gx[step_no],pulse.Gy[step_no],0.0)
                     em.precess_and_relax(T1,T2,Bz,pulse.delta_t)
         elif pulse.mode == 'excite':
             mr_signal = None
-            pass
+            for step_no in range(pulse.length):
+                for em in self.ems:
+                    old_r = em.r
+                    motion_type = 'none'
+                    em.move(motion_type,pulse.delta_t)
+                    r_avg = (old_r+em.r)/2.0
+                    Bz = self._find_Bz(r_avg,0.0,0.0,pulse.Gz[step_no])
+                    em.update_flip_quaternion(pulse.B1x[step_no],pulse.B1y[step_no],Bz,pulse.omega_rf,pulse.delta_t)
+            pulse_duration = pulse.delta_t*pulse.length
+            for em in self.ems:
+                em.flip(pulse.omega_rf,pulse_duration)
         return mr_signal   
 
     def _readout(self):
