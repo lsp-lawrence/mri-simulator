@@ -1,0 +1,3 @@
+\beamer@sectionintoc {1}{Memory management in Python}{3}{0}{1}
+\beamer@sectionintoc {2}{Distributed computing in Python with Ray}{6}{0}{2}
+\beamer@sectionintoc {3}{Cartesian sampling pulses}{8}{0}{3}

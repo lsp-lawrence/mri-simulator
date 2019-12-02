@@ -19,6 +19,10 @@ class Pulse:
                 kwargs.get('omega_rf'): (positive float) angular carrier frequency of RF pulse           
         """
         # Check params
+        if 'mode' not in kwargs:
+            raise ValueError("mode is a necessary param")
+        if 'delta_t' not in kwargs:
+            raise ValueError("delta_t is a necessary param")
         mode = kwargs.get('mode')
         valid_modes = ['free','excite']
         if (not isinstance(mode,str)) or (mode not in valid_modes):

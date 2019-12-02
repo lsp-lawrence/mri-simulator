@@ -4,13 +4,14 @@ from pyquaternion import Quaternion
 class Em:
     """The atom of the MR simulation"""
 
-    def __init__(self,magnetization,position,velocity,gyromagnetic_ratio,equilibrium_magnetization):
+    def __init__(self,magnetization,position,velocity,gyromagnetic_ratio,shielding_constant,equilibrium_magnetization):
         """Initializes an em
         Params:
             magnetization: (numpy 3-vector) initial magnetization
             position: (numpy 3-vector) intial position
             velocity: (numpy 3-vector) initial velocity
             gyromagnetic_ratio: (float) the gyromagnetic ratio of the nucleus
+            shielding_constant: (positive float) shiedling constant from chemical environment
             equilibrium_magnetization: (positive float) longitudinal magnetization in thermal equilibrium
         """
         # Check params
@@ -22,6 +23,8 @@ class Em:
             raise TypeError("velocity must be a numpy 3-vector")
         if not isinstance(gyromagnetic_ratio,float):
             raise TypeError("gyromagnetic_ratio must be a float")
+        if not(isinstance(shielding_constant,float) and shielding_constant > 0):
+            raise TypeError("shielding constant must be a positive float")
         if (not isinstance(equilibrium_magnetization,float)) or (equilibrium_magnetization <= 0):
             raise TypeError("equilibrium_magnetization must be a positive float")
         # Main
@@ -29,6 +32,7 @@ class Em:
         self.r = position
         self.v = velocity # A velocity component of None indicates exactly zero velocity in that direction
         self.gamma = gyromagnetic_ratio
+        self.sigma = shielding_constant
         self.mu0 = equilibrium_magnetization
         self.flip_quaternion = Quaternion(1) # Rotation quaterion for flip from excitation
 
@@ -66,6 +70,7 @@ class Em:
         if (not isinstance(delta_t,float)) or (delta_t <= 0):
             raise TypeError("delta_t must be a positive float")
         # Main
+        Bz = (1-self.sigma)*Bz # effective field due to electron shielding
         m = (self.mu[0]+1j*self.mu[1])*np.exp(-delta_t/T2 - 1j*self.gamma*Bz*delta_t)
         self.mu[0] = m.real
         self.mu[1] = m.imag
@@ -92,7 +97,9 @@ class Em:
         if (not isinstance(delta_t,float)) or (delta_t <= 0):
             raise TypeError("delta_t must be a positive float")
         # Main
-        Beff = np.array([B1x,B1y,Bz-omega_rf/self.gamma])
+        Brot = np.array([B1x,B1y,Bz])
+        Brot = Brot*(1-self.sigma) # effective field due to electron shielding
+        Beff = Brot - np.array([0.0,0.0,omega_rf/self.gamma]) # effective field in rotating frame
         Beff_norm = np.linalg.norm(Beff)
         flip_axis = Beff/Beff_norm
         flip_angle = self.gamma*Beff_norm*delta_t
