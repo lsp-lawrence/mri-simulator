@@ -5,13 +5,14 @@ import numpy as np
 class Sim:
     """The main MR simulation object"""
 
-    def __init__(self,em_magnetizations,em_positions,em_velocities,em_gyromagnetic_ratio,em_equilibrium_magnetization,main_field,pulse_sequence):
+    def __init__(self,em_magnetizations,em_positions,em_velocities,em_gyromagnetic_ratio,em_shielding_constants,em_equilibrium_magnetization,main_field,pulse_sequence):
         """Initializes the MR simulation
         Params:
             em_magnetizations: (num_ems*3 numpy array of float) the initial magnetizations of the ems
             em_positions: (num_ems*3 numpy array of floats) the initial positions of the ems
             em_velocities: (num_ems*3 numpy array of floats) the initial velocities of the ems
             em_gyromagnetic_ratio: (float) the gyromagnetic ratio of the ems
+            em_shiedling_constants: (1D numpy array of nonnegative floats) the shielding constants of the ems
             em_equilibrium_magnetization: (positive float) the equilibrium magnetization of the ems
             main_field: (positive float) the main field strength
             pulse_sequence: (list of Pulse objects) the pulse sequence
@@ -27,6 +28,8 @@ class Sim:
             raise ValueError("em_magnetizations, em_positions, em_velocities must have the same number of rows (num_ems)")
         if not isinstance(em_gyromagnetic_ratio,float):
             raise TypeError("em_gyromagnetic_ratio must be a float")
+        if not (em_shielding_constants.dtype == np.float64 and em_shielding_constants.ndim == 1 and all([item >= 0.0 for item in em_shielding_constants])):
+            raise TypeError("em_shielding_constants must be a 1D numpy array of positive floats")
         if (not isinstance(em_equilibrium_magnetization,float)) or (em_equilibrium_magnetization <= 0):
             raise TypeError("em_equilibrium_magnetization must be a positive float")
         if (not isinstance(main_field,float)) or (main_field <= 0):
@@ -42,7 +45,8 @@ class Sim:
             magnetization = em_magnetizations[em_no,:]
             position = em_positions[em_no,:]
             velocity = em_velocities[em_no,:]
-            self.ems.append(Em(magnetization,position,velocity,em_gyromagnetic_ratio,em_equilibrium_magnetization))     
+            shielding_constant = em_shielding_constants[em_no]
+            self.ems.append(Em(magnetization,position,velocity,em_gyromagnetic_ratio,shielding_constant,em_equilibrium_magnetization))     
 
     def run_sim(self):
         """Runs the simulation

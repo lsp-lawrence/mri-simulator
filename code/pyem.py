@@ -11,7 +11,7 @@ class Em:
             position: (numpy 3-vector) intial position
             velocity: (numpy 3-vector) initial velocity
             gyromagnetic_ratio: (float) the gyromagnetic ratio of the nucleus
-            shielding_constant: (positive float) shiedling constant from chemical environment
+            shielding_constant: (nonnegative float) shiedling constant from chemical environment
             equilibrium_magnetization: (positive float) longitudinal magnetization in thermal equilibrium
         """
         # Check params
@@ -23,7 +23,7 @@ class Em:
             raise TypeError("velocity must be a numpy 3-vector")
         if not isinstance(gyromagnetic_ratio,float):
             raise TypeError("gyromagnetic_ratio must be a float")
-        if not(isinstance(shielding_constant,float) and shielding_constant > 0):
+        if not(isinstance(shielding_constant,float) and shielding_constant >= 0.0):
             raise TypeError("shielding constant must be a positive float")
         if (not isinstance(equilibrium_magnetization,float)) or (equilibrium_magnetization <= 0):
             raise TypeError("equilibrium_magnetization must be a positive float")

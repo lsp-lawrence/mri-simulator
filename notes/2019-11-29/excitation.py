@@ -3,7 +3,7 @@ from pypulse import Pulse
 import numpy as np
 import matplotlib.pyplot as plt
 
-debug = True
+debug = False
 
 num_ems = 200
 em_gyromagnetic_ratio = 1.0
@@ -13,6 +13,7 @@ main_field = 10.0
 em_equilibrium_magnetization = 1.0
 em_magnetizations = np.zeros([num_ems,3])
 em_magnetizations[:,2] = em_equilibrium_magnetization
+em_shielding_constants = np.zeros(num_ems)
 
 if debug:
     print(em_magnetizations)
@@ -71,7 +72,7 @@ for pulse_duration in pulse_durations:
     if not debug:
         # Initialize simulation
         pulse_sequence = [pulse]
-        sim = Sim(em_magnetizations,em_positions,em_velocities,em_gyromagnetic_ratio,em_equilibrium_magnetization,main_field,pulse_sequence)
+        sim = Sim(em_magnetizations,em_positions,em_velocities,em_gyromagnetic_ratio,em_shielding_constants,em_equilibrium_magnetization,main_field,pulse_sequence)
 
         # Run simulation
         ems, mrsignals = sim.run_sim()
@@ -90,5 +91,6 @@ for pulse_duration in pulse_durations:
         plt.xlabel('Longitudinal position (m)')
         plt.ylabel('Norm of transverse magnetization (a.u.)')
         plt.legend(('Simulation','Theory'))
-        plt.savefig('excitation_pulse-duration-'+str(pulse_duration)+'.pdf')
-        plt.close()
+        plt.show()
+##        plt.savefig('excitation_pulse-duration-'+str(pulse_duration)+'.pdf')
+##        plt.close()
