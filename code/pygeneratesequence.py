@@ -1,6 +1,59 @@
 import numpy as np
 from pypulse import Pulse
 
+def generate_slice_select_pulses(gyromagnetic_ratio,main_field,Gz_amplitude,slice_width,tip_angle,delta_t):
+    """Generates the pulses for a slice select
+    Params:
+        gyromagnetic_ratio: (positive float) gyromagnetic ratio of species
+        main_field: (positive float) main magnetic field
+        Gz_amplitude: (positive float) z-gradient amplitude
+        slice_width: (postive float) width of the slice
+        tip_angle: (float \in (0,pi)) angle to tip
+        delta_t: (positive float) time step
+    Returns:
+        slice_select_pulses: (list of Pulse objects) the pulses required to excite a single slice
+    """
+    # Check params
+    if not(isinstance(gyromagnetic_ratio,float) and gyromagnetic_ratio > 0):
+        raise TypeError('gyromagnetic_ratio must be a positive float')
+    if not(isinstance(main_field,float) and main_field > 0):
+        raise TypeError('main_field must be a positive float')
+    if not (isinstance(Gz_amplitude,float) and Gz_amplitude > 0):
+        raise TypeError('Gz_amplitude must be a positive float')
+    if not(isinstance(slice_width,float) and slice_width > 0):
+        raise TypeError('slice_width must be a positive float')
+    if not(isinstance(tip_angle,float) and tip_angle > 0 and tip_angle < np.pi):
+        raise TypeError('tip_angle must be a float between 0 and \pi')
+    if not(isinstance(delta_t,float) and delta_t > 0):
+        raise TypeError('delta_t must be a positive float')
+    # Tipping pulse
+    Gz_tip_amp = Gz_amplitude
+    pulse_tip_duration = 2*np.pi*8/(gyromagnetic_ratio*Gz_tip_amp*(slice_width/2.0))
+    t_vals = np.arange(0.0,pulse_tip_duration,delta_t)
+    t_vals_shifted = t_vals-pulse_tip_duration/2.0
+    sinc_scaling = 2.0*8.0/pulse_tip_duration
+    gaussian_std = pulse_tip_duration/3.0
+    B1x_tip = np.sinc(sinc_scaling*t_vals_shifted)*np.exp(-(t_vals_shifted**2)/(2*gaussian_std**2)) # sinc pulse
+    alpha_origin = gyromagnetic_ratio*sum(B1x_tip)*delta_t
+    desired_alpha_origin = tip_angle
+    B1x_amplitude_scaling = desired_alpha_origin/alpha_origin
+    B1x_tip = B1x_tip*B1x_amplitude_scaling # rescale for desired tip angle
+    pulse_tip_length = len(B1x_tip)
+    B1y_tip = np.zeros(pulse_tip_length)
+    Gz_tip = Gz_tip_amp*np.ones(pulse_tip_length)
+    omega_rf = gyromagnetic_ratio*main_field # omega_rf = omega_0
+    pulse_tip = Pulse(mode='excite',delta_t=delta_t,B1x=B1x_tip,B1y=B1y_tip,Gz=Gz_tip,omega_rf=omega_rf)
+    # Refocusing pulse
+    pulse_refocus_length = int(pulse_tip_length/2)
+    Gx_refocus = np.zeros(pulse_refocus_length)
+    Gy_refocus = np.zeros(pulse_refocus_length)
+    Gz_refocus = -Gz_tip_amp*np.ones(pulse_refocus_length)
+    readout = np.zeros(pulse_refocus_length,dtype=bool)
+    pulse_refocus = Pulse(mode='free',delta_t=delta_t,Gx=Gx_refocus,Gy=Gy_refocus,Gz=Gz_refocus,readout=readout)
+
+    return [pulse_tip,pulse_refocus]
+    
+
 def generate_kspace_pulses(num_fe_samples,num_pe_samples,kx_max,ky_max,kmove_time,adc_rate,gyromagnetic_ratio,delta_t):
     """Generates the set of pulses necessary to sample desired region of kspace using Cartesian sampling
     Params:

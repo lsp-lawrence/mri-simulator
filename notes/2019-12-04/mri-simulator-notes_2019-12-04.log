@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.4.10)  4 DEC 2019 10:50
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.4.10)  4 DEC 2019 17:13
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1036,24 +1036,68 @@ thkerncmss.
 ] [4
 
 ]
-<excitation_refocus_pulse.pdf, id=127, 462.52798pt x 346.89601pt>
+<excitation_refocus_pulse.pdf, id=133, 462.52798pt x 346.89601pt>
 File: excitation_refocus_pulse.pdf Graphic file (type pdf)
 <use excitation_refocus_pulse.pdf>
-Package pdftex.def Info: excitation_refocus_pulse.pdf  used on input line 34.
+Package pdftex.def Info: excitation_refocus_pulse.pdf  used on input line 35.
 (pdftex.def)             Requested size: 307.28987pt x 230.4765pt.
  [5
 
  <./excitation_refocus_pulse.pdf>]
-<excitation_refocus.pdf, id=189, 462.52798pt x 346.89601pt>
+<excitation_refocus.pdf, id=195, 462.52798pt x 346.89601pt>
 File: excitation_refocus.pdf Graphic file (type pdf)
 <use excitation_refocus.pdf>
-Package pdftex.def Info: excitation_refocus.pdf  used on input line 40.
+Package pdftex.def Info: excitation_refocus.pdf  used on input line 41.
 (pdftex.def)             Requested size: 307.28987pt x 230.4765pt.
  [6
 
  <./excitation_refocus.pdf>] [7
 
+] [8
+
+] [9
+
 ]
+<slice_select_5cm.pdf, id=339, 462.52798pt x 346.89601pt>
+File: slice_select_5cm.pdf Graphic file (type pdf)
+<use slice_select_5cm.pdf>
+Package pdftex.def Info: slice_select_5cm.pdf  used on input line 63.
+(pdftex.def)             Requested size: 307.28987pt x 230.4765pt.
+ [10
+
+ <./slice_select_5cm.pdf>]
+<slice_select_2cm.pdf, id=404, 462.52798pt x 346.89601pt>
+File: slice_select_2cm.pdf Graphic file (type pdf)
+<use slice_select_2cm.pdf>
+Package pdftex.def Info: slice_select_2cm.pdf  used on input line 69.
+(pdftex.def)             Requested size: 307.28987pt x 230.4765pt.
+ [11
+
+ <./slice_select_2cm.pdf>]
+<slice_select_90degree.pdf, id=469, 462.52798pt x 346.89601pt>
+File: slice_select_90degree.pdf Graphic file (type pdf)
+<use slice_select_90degree.pdf>
+Package pdftex.def Info: slice_select_90degree.pdf  used on input line 75.
+(pdftex.def)             Requested size: 307.28987pt x 230.4765pt.
+
+[12
+
+ <./slice_select_90degree.pdf>] [13
+
+]
+<slice_select_90degree_small_delta_t.pdf, id=561, 462.52798pt x 346.89601pt>
+File: slice_select_90degree_small_delta_t.pdf Graphic file (type pdf)
+<use slice_select_90degree_small_delta_t.pdf>
+Package pdftex.def Info: slice_select_90degree_small_delta_t.pdf  used on input
+ line 88.
+(pdftex.def)             Requested size: 307.28987pt x 230.4765pt.
+
+Overfull \vbox (5.80333pt too high) detected at line 88
+ []
+
+[14
+
+ <./slice_select_90degree_small_delta_t.pdf>]
 \tf@nav=\write6
 \openout6 = `mri-simulator-notes_2019-12-04.nav'.
 
@@ -1063,33 +1107,36 @@ Package pdftex.def Info: excitation_refocus.pdf  used on input line 40.
 \tf@snm=\write8
 \openout8 = `mri-simulator-notes_2019-12-04.snm'.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 51.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 51.
- (./mri-simulator-notes_2019-12-04.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 51.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 51.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 91.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 91.
+
+(./mri-simulator-notes_2019-12-04.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 91.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 91.
 Package rerunfilecheck Info: File `mri-simulator-notes_2019-12-04.out' has not 
 changed.
-(rerunfilecheck)             Checksum: 98F513F79D85B7D6A227080B77F440E0;66.
+(rerunfilecheck)             Checksum: A2B8C4E5A030178AA0DE516FF5D90135;140.
  ) 
 Here is how much of TeX's memory you used:
- 21009 strings out of 492623
- 389647 string characters out of 6129552
+ 21084 strings out of 492623
+ 390944 string characters out of 6129552
  649260 words of memory out of 5000000
- 24438 multiletter control sequences out of 15000+600000
- 10946 words of font info for 41 fonts, out of 8000000 for 9000
+ 24490 multiletter control sequences out of 15000+600000
+ 15612 words of font info for 59 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  56i,14n,63p,1057b,563s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb
 ></usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmss12.pfb>
 </usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></
 usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi10.pfb></
-usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pf
-b>
-Output written on mri-simulator-notes_2019-12-04.pdf (7 pages, 81943 bytes).
+usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi12.pfb></
+usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></u
+sr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr
+/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb>
+Output written on mri-simulator-notes_2019-12-04.pdf (14 pages, 173617 bytes).
 PDF statistics:
- 306 PDF objects out of 1000 (max. 8388607)
- 215 compressed objects within 3 object streams
- 16 named destinations out of 1000 (max. 500000)
- 61 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 663 PDF objects out of 1000 (max. 8388607)
+ 425 compressed objects within 5 object streams
+ 31 named destinations out of 1000 (max. 500000)
+ 89 words of extra memory for PDF output out of 10000 (max. 10000000)
 

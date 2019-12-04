@@ -3,11 +3,11 @@ from pypulse import Pulse
 import numpy as np
 import matplotlib.pyplot as plt
 
-see_pulse = False
+see_pulse = True
 pulse_name = 'excitation_refocus_pulse.pdf'
-run_simulation = True
+run_simulation = False
 sim_name = 'excitation_refocus.pdf'
-save_fig = True
+save_fig = False
 
 num_ems = 1000
 em_gyromagnetic_ratio = 2.675e8

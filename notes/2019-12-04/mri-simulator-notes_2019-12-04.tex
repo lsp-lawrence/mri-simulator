@@ -12,12 +12,12 @@
 
 \begin{frame}{Tasks}
 \begin{itemize}
-\item I simulated selective excitation of a slice in the $z$ direction.
-\item 
+\item I simulated selective excitation of a slice in the $z$ direction to test my code
+\item I wrote a function to generate selective excitation pulses with a given slice width and tip angle.
 \end{itemize}
 \end{frame}
 
-\section{Selective excitation of a slice}
+\section{Selective excitation of a slice for testing}
 
 \begin{frame}{Summary}
 \begin{itemize}
@@ -47,5 +47,45 @@
 \item I take these results as evidence that the excitation and precession routines are working as expected. 
 \end{itemize}
 \end{frame}
+
+\section{Slice-select pulse function}
+
+\begin{frame}{Summary}
+\begin{itemize}
+\item I tested my selective excitation pulse function by simulating the effect of the generated pulses on 1000 ems evenly-spaced between -10 cm and 10 cm and plotting the resultant magnetization profile.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Slice width 5 cm, tip angle 30 degrees (0.52 rad)}
+\begin{center}
+\includegraphics[width=\textwidth]{{slice_select_5cm}}
+\end{center}
+\end{frame}
+
+\begin{frame}{Slice width 2 cm, tip angle 30 degrees (0.52 rad)}
+\begin{center}
+\includegraphics[width=\textwidth]{{slice_select_2cm}}
+\end{center}
+\end{frame}
+
+\begin{frame}{Slice width 5 cm, tip angle 90 degrees (1.57 rad)}
+\begin{center}
+\includegraphics[width=\textwidth]{{slice_select_90degree}}
+\end{center}
+\end{frame}
+
+\begin{frame}{Comments}
+\begin{itemize}
+\item The function appears to be working as expected.
+\item The phase profile in the final plot is slanted. I think this is due to the time step being too large -- the phase advance in a single time step is substantial. See the following figure for the last profile with a time step of $10^{-7}$ seconds instead of $10^{-6}$ seconds.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Slice width 5 cm, tip angle 90 degrees (1.57 rad), $\Delta t = 10^{-7}$ s}
+\begin{center}
+\includegraphics[width=\textwidth]{{slice_select_90degree_small_delta_t}}
+\end{center}
+\end{frame}
+
 
 \end{document}
