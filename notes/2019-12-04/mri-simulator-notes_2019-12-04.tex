@@ -1,0 +1,51 @@
+\documentclass[dvipsnames]{beamer}
+\input{mybeamerdefs}
+\title{MRI Simulator Notes}
+\author{Liam}
+\date{\today}
+
+\begin{document}
+
+\begin{frame}
+\maketitle
+\end{frame}
+
+\begin{frame}{Tasks}
+\begin{itemize}
+\item I simulated selective excitation of a slice in the $z$ direction.
+\item 
+\end{itemize}
+\end{frame}
+
+\section{Selective excitation of a slice}
+
+\begin{frame}{Summary}
+\begin{itemize}
+\item I distributed 1000 ems evenly-spaced from -10 cm to 10 cm.
+\item I simulated selective slice excitation with more realistic parameters, e.g. using the actual gyromagnetic ratio of H-1.
+\item I used a Gaussian-windowed sinc waveform for the RF pulse and a constant $z$ gradient with a refocusing lobe.
+\item I debugged until the simulation and theory profiles agreed.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Pulse sequence}
+\begin{center}
+\includegraphics[width=\textwidth]{{excitation_refocus_pulse}}
+\end{center}
+\end{frame}
+
+\begin{frame}{Transverse magnetization profile}
+\begin{center}
+\includegraphics[width=\textwidth]{{excitation_refocus}}
+\end{center}
+\end{frame}
+
+\begin{frame}{Comments}
+\begin{itemize}
+\item The profile looks as expected in the excited slice.
+\item I'm not sure what's going on with the phase outside of the excited slice.
+\item I take these results as evidence that the excitation and precession routines are working as expected. 
+\end{itemize}
+\end{frame}
+
+\end{document}

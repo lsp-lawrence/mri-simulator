@@ -5,7 +5,7 @@ import numpy as np
 class Sim:
     """The main MR simulation object"""
 
-    def __init__(self,em_magnetizations,em_positions,em_velocities,em_gyromagnetic_ratio,em_shielding_constants,em_equilibrium_magnetization,main_field,pulse_sequence):
+    def __init__(self,em_magnetizations,em_positions,em_velocities,em_gyromagnetic_ratio,em_shielding_constants,em_equilibrium_magnetization,T1_map,T2_map,main_field,pulse_sequence):
         """Initializes the MR simulation
         Params:
             em_magnetizations: (num_ems*3 numpy array of float) the initial magnetizations of the ems
@@ -14,6 +14,8 @@ class Sim:
             em_gyromagnetic_ratio: (float) the gyromagnetic ratio of the ems
             em_shiedling_constants: (1D numpy array of nonnegative floats) the shielding constants of the ems
             em_equilibrium_magnetization: (positive float) the equilibrium magnetization of the ems
+            T1_map: (function) mapping from position to T1 value
+            T2_map: (function) mapping from position to T2 value
             main_field: (positive float) the main field strength
             pulse_sequence: (list of Pulse objects) the pulse sequence
         """
@@ -38,6 +40,8 @@ class Sim:
             raise TypeError("pulse_sequence must be a list of Pulse objects")
         # Main
         self.num_ems = em_positions.shape[0]
+        self.T1_map = T1_map
+        self.T2_map = T2_map
         self.B0 = main_field
         self.pulse_sequence = pulse_sequence
         self.ems = []
@@ -46,7 +50,7 @@ class Sim:
             position = em_positions[em_no,:]
             velocity = em_velocities[em_no,:]
             shielding_constant = em_shielding_constants[em_no]
-            self.ems.append(Em(magnetization,position,velocity,em_gyromagnetic_ratio,shielding_constant,em_equilibrium_magnetization))     
+            self.ems.append(Em(magnetization,position,velocity,em_gyromagnetic_ratio,shielding_constant,em_equilibrium_magnetization))
 
     def run_sim(self):
         """Runs the simulation
@@ -61,7 +65,7 @@ class Sim:
                 mr_signals.append(mr_signal)
         ems = self.ems
         return ems, mr_signals
-
+    
     def _find_T1(self,position):
         """Returns the T1 at given position
         Params:
@@ -72,8 +76,8 @@ class Sim:
         # Check params
         if (position.dtype != np.float64) or (position.shape != (3,)):
             raise TypeError("position must be a numpy 3-vector of floats")
-        # Main
-        return 1.0
+        # Return T1
+        return self.T1_map(position)
 
     def _find_T2(self,position):
         """Returns the T2 at given position
@@ -85,8 +89,8 @@ class Sim:
         # Check params
         if (position.dtype != np.float64) or (position.shape != (3,)):
             raise TypeError("position must be a numpy 3-vector of floats")
-        # Main
-        return 1.0
+        # return T2
+        return self.T2_map(position)
 
     def _find_Bz(self,position,Gx,Gy,Gz):
         """Returns the longitudinal field at a given position with applied gradients
@@ -135,7 +139,7 @@ class Sim:
                     r_avg = (old_r+em.r)/2.0
                     T1 = self._find_T1(r_avg)
                     T2 = self._find_T2(r_avg)
-                    Bz = self._find_Bz(r_avg,pulse.Gx[step_no],pulse.Gy[step_no],0.0)
+                    Bz = self._find_Bz(r_avg,pulse.Gx[step_no],pulse.Gy[step_no],pulse.Gz[step_no])
                     em.precess_and_relax(T1,T2,Bz,pulse.delta_t)
         elif pulse.mode == 'excite':
             mr_signal = None

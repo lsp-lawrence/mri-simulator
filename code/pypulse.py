@@ -11,6 +11,7 @@ class Pulse:
             if kwargs.get('mode') == 'free':
                 kwargs.get('Gx'): (1D numpy array of floats) gradient in x for each time step
                 kwargs.get('Gy'): (1D numpy array of floats) gradient in y for each time step
+                kwargs.get('Gz'): (1D numpy array of floats) gradient in z for each time step
                 kwargs.get('readout'): (1D numpy array of bools) read ADC at time step?
             elif kwargs.get('mode') == 'excite':
                 kwargs.get('B1x'): (1D numpy array of floats) RF pulse modulation in x direction of rotating frame for each time step
@@ -31,26 +32,38 @@ class Pulse:
         if (not isinstance(delta_t,float)) or (delta_t <= 0):
             raise TypeError("delta_t must be a positive float")
         if mode == 'free':
+            free_params = ['Gx','Gy','Gz','readout']
+            for free_param in free_params:
+                if free_param not in kwargs:
+                    raise ValueError(free_param + " is a necessary param when mode == free")
             Gx = kwargs.get('Gx')
             Gy = kwargs.get('Gy')
+            Gz = kwargs.get('Gz')
             readout = kwargs.get('readout')
             if (Gx.dtype != np.float64) or (Gx.ndim != 1):
                 raise TypeError("Gx must be a 1D numpy array of floats")
             if (Gy.dtype != np.float64) or (Gy.ndim != 1):
                 raise TypeError("Gy must be a 1D numpy array of floats")
+            if (Gz.dtype != np.float64) or (Gz.ndim != 1):
+                raise TypeError("Gz must be a 1D numpy array of floats")
             if (readout.dtype != np.bool) or (readout.ndim != 1):
                 raise TypeError("readout must be a 1D numpy array of bools")
-            if not (len(Gx) == len(Gy) == len(readout)):
-                raise ValueError("Gx, Gy, and readout must be the same length")
+            if not (len(Gx) == len(Gy) == len(Gz) == len(readout)):
+                raise ValueError("Gx, Gy, Gz, and readout must be the same length")
             # Main
             self.mode = mode
             self.delta_t = delta_t
             self.Gx = Gx
             self.Gy = Gy
+            self.Gz = Gz
             self.readout = readout
             self.length = len(Gx)
             self.signal_collected = any(readout)
         elif mode == 'excite':
+            excite_params = ['B1x','B1y','omega_rf','Gz']
+            for excite_param in excite_params:
+                if excite_param not in kwargs:
+                    raise ValueError(excite_param + " is a necessary param when mode == excite")
             B1x = kwargs.get('B1x')
             B1y = kwargs.get('B1y')
             omega_rf = kwargs.get('omega_rf')

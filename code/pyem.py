@@ -102,7 +102,7 @@ class Em:
         Beff = Brot - np.array([0.0,0.0,omega_rf/self.gamma]) # effective field in rotating frame
         Beff_norm = np.linalg.norm(Beff)
         flip_axis = Beff/Beff_norm
-        flip_angle = self.gamma*Beff_norm*delta_t
+        flip_angle = -self.gamma*Beff_norm*delta_t
         self.flip_quaternion = self.flip_quaternion*Quaternion(axis=flip_axis,angle=flip_angle)
 
     def flip(self,omega_rf,pulse_duration):
@@ -111,6 +111,6 @@ class Em:
             omega_rf: angular carrier frequency of RF pulse
             pulse_duration: duration of RF pulse
         """
-        self.flip_quaternion = self.flip_quaternion*Quaternion(axis=[0,0,1],angle=omega_rf*pulse_duration)
+        self.flip_quaternion = self.flip_quaternion*Quaternion(axis=[0,0,1],angle=-omega_rf*pulse_duration)
         self.mu = self.flip_quaternion.rotate(self.mu)
         self.flip_quaternion = Quaternion(1)
