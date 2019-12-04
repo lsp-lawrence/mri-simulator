@@ -1,0 +1,76 @@
+\documentclass[dvipsnames]{beamer}
+\input{mybeamerdefs}
+\title{MRI Simulator Notes}
+\author{Liam}
+\date{\today}
+
+\begin{document}
+
+\begin{frame}
+\maketitle
+\end{frame}
+
+\begin{frame}{Tasks}
+\begin{itemize}
+\item I tried to verify my excitation routine by doing selective excitation of a slice. I verified the magnitude of the transverse magnetization profile previously; I had not verified the phase.
+\end{itemize}
+\end{frame}
+
+\section{Verifying excitation}
+
+\begin{frame}
+\begin{itemize}
+\item I simulated selective slice excitation with more realistic parameters, e.g. using the actual gyromagnetic ratio of H-1.
+\item I set the amplitude of the excitation pulse to induce a tip angle of 30 degrees (0.52 radians).
+\item I changed the manner in which I computed the theory prediction from the small tip angle solution.
+\item The next three figures show the simulation and theory transverse magnetization profiles for a sinc pulse of duration 1.0 ms, 1.5 ms, and 2.0 ms.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\includegraphics[width=\textwidth]{{excitation_pulse-duration-1.0}.pdf}
+\end{center}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\includegraphics[width=\textwidth]{{excitation_pulse-duration-1.5}.pdf}
+\end{center}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\includegraphics[width=\textwidth]{{excitation_pulse-duration-2.0}.pdf}
+\end{center}
+\end{frame}
+
+\begin{frame}
+\begin{itemize}
+\item The phase between theory and simulation disagrees. I do not know why.
+\item Multiplying the theory phase curves by $-1$ yields better agreement for the short pulses, but not the longer ones (see figures following).
+\item I might try verifying my excitation routine in a different manner to see if the problem is with the simulation or my computation of the theory profile.
+\item It's good to see agreement again in the magnitude profile, at least.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\includegraphics[width=\textwidth]{{excitation_negative-phase_pulse-duration-1.0}.pdf}
+\end{center}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\includegraphics[width=\textwidth]{{excitation_negative-phase_pulse-duration-1.5}.pdf}
+\end{center}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\includegraphics[width=\textwidth]{{excitation_negative-phase_pulse-duration-2.0}.pdf}
+\end{center}
+\end{frame}
+
+
+\end{document}

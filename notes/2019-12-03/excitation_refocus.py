@@ -50,6 +50,7 @@ for pulse_duration in pulse_durations:
     B1y = np.zeros(pulse_length)
     Gz_amp = 5.0*1e-3 # T/m
     Gz = Gz_amp*np.ones(pulse_length)
+    Gz_refocus = -Gz_amp*np.ones
     omega_rf = em_gyromagnetic_ratio*main_field # omega_rf = omega_0
     pulse = Pulse(mode='excite',delta_t=delta_t,B1x=B1x,B1y=B1y,Gz=Gz,omega_rf=omega_rf)
 
