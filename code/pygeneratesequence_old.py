@@ -1,59 +1,13 @@
 import numpy as np
 from pypulse import Pulse
 
-def generate_2DFT_sequence(main_field,Gz_amplitude,slice_width,gyromagnetic_ratio,num_fe_samples,num_pe_samples,kx_max,ky_max,kmove_time,adc_rate,delta_t):
-    """Generates a 2DFT pulse sequence
-    Params:
-        main_field: (positive float) main magnetic field
-        Gz_amplitude: (positive float) z-gradient amplitude
-        slice_width: (postive float) width of the slice
-        gyromagnetic_ratio: (float) gyromagnetic ratio of species to be imaged
-        num_fe_samples: (positive int) number of samples in frequency-encoding direction
-        num_pe_samples: (positive int) number of samples in phase-encoding direction
-        kx_max: (positive float) maximum value of kx to sample
-        ky_max: (positive float) maximum value of ky to sample
-        kmove_time: (positive float) time to move to each location in kspace
-        adc_rate: (positive float) sampling rate of ADC in Hz
-        delta_t: (positive float) time step for simulation
-    Returns:
-        pulse_sequence: (list of Pulse objects) a 2DFT pulse sequence
-    """
-    # Check params
-    if not (isinstance(num_fe_samples,int) and num_fe_samples > 0):
-        raise TypeError("num_fe_samples must be a positive int")
-    if not (isinstance(num_pe_samples,int) and num_pe_samples > 0):
-        raise TypeError("num_pe_samples must be a positive int")
-    if not (isinstance(kx_max,float) and kx_max > 0):
-        raise TypeError("kx_max must be a positive float")
-    if not (isinstance(ky_max,float) and ky_max > 0):
-        raise TypeError("ky_max must be a positive float")
-    if not (isinstance(kmove_time,float) and kmove_time > 0):
-        raise TypeError("kmove_time must be a positive float")
-    if not (isinstance(adc_rate,float) and adc_rate > 0):
-        raise TypeError("adc_rate must be a positive float")
-    if not isinstance(gyromagnetic_ratio,float):
-        raise TypeError("gyromagnetic_ratio must be a float")
-    if not (isinstance(delta_t,float) and delta_t > 0):
-        raise TypeError("delta_t must be a positive float")
-    if not(isinstance(main_field,float) and main_field > 0):
-        raise TypeError('main_field must be a positive float')
-    if not (isinstance(Gz_amplitude,float) and Gz_amplitude > 0):
-        raise TypeError('Gz_amplitude must be a positive float')
-    if not(isinstance(slice_width,float) and slice_width > 0):
-        raise TypeError('slice_width must be a positive float')
-    # Create pulse sequence
-    tip_angle = np.pi/2.0
-    pulse_tip = generate_tipping_pulse(gyromagnetic_ratio,main_field,Gz_amplitude,slice_width,tip_angle,delta_t)
-    kspace_pulses = generate_kspace_pulses(pulse_tip,num_fe_samples,num_pe_samples,kx_max,ky_max,kmove_time,adc_rate,gyromagnetic_ratio,delta_t)
-    pulse_sequence = []
-    for line_no in range(num_pe_samples):
-        pulse_sequence.append(pulse_tip)
-        pulse_sequence.append(kspace_pulses[line_no])
-    return pulse_sequence
+def generate_spin_echo_sequence():
+
+    pulse_tip = generate_slice_select_pulse()
     
 
-def generate_tipping_pulse(gyromagnetic_ratio,main_field,Gz_amplitude,slice_width,tip_angle,delta_t):
-    """Generates the tipping pulse for a spin-echo sequence
+def generate_slice_select_pulses(gyromagnetic_ratio,main_field,Gz_amplitude,slice_width,tip_angle,delta_t):
+    """Generates the pulses for a slice select
     Params:
         gyromagnetic_ratio: (positive float) gyromagnetic ratio of species
         main_field: (positive float) main magnetic field
@@ -62,7 +16,7 @@ def generate_tipping_pulse(gyromagnetic_ratio,main_field,Gz_amplitude,slice_widt
         tip_angle: (float \in (0,pi)) angle to tip
         delta_t: (positive float) time step
     Returns:
-        pulse_tip: (list of Pulse objects) the pulse required to tip the magnetization in a slice
+        slice_select_pulses: (list of Pulse objects) the pulses required to excite a single slice
     """
     # Check params
     if not(isinstance(gyromagnetic_ratio,float) and gyromagnetic_ratio > 0):
@@ -94,14 +48,20 @@ def generate_tipping_pulse(gyromagnetic_ratio,main_field,Gz_amplitude,slice_widt
     Gz_tip = Gz_tip_amp*np.ones(pulse_tip_length)
     omega_rf = gyromagnetic_ratio*main_field # omega_rf = omega_0
     pulse_tip = Pulse(mode='excite',delta_t=delta_t,B1x=B1x_tip,B1y=B1y_tip,Gz=Gz_tip,omega_rf=omega_rf)
+    # Refocusing pulse
+    pulse_refocus_length = int(pulse_tip_length/2)
+    Gx_refocus = np.zeros(pulse_refocus_length)
+    Gy_refocus = np.zeros(pulse_refocus_length)
+    Gz_refocus = -Gz_tip_amp*np.ones(pulse_refocus_length)
+    readout = np.zeros(pulse_refocus_length,dtype=bool)
+    pulse_refocus = Pulse(mode='free',delta_t=delta_t,Gx=Gx_refocus,Gy=Gy_refocus,Gz=Gz_refocus,readout=readout)
 
-    return pulse_tip
+    return [pulse_tip,pulse_refocus]
     
 
-def generate_kspace_pulses(pulse_tip,num_fe_samples,num_pe_samples,kx_max,ky_max,kmove_time,adc_rate,gyromagnetic_ratio,delta_t):
+def generate_kspace_pulses(num_fe_samples,num_pe_samples,kx_max,ky_max,kmove_time,adc_rate,gyromagnetic_ratio,delta_t):
     """Generates the set of pulses necessary to sample desired region of kspace using Cartesian sampling
     Params:
-        pulse_tip: (Pulse object) tipping pulse in spin-echo sequence
         num_fe_samples: (positive int) number of samples in frequency-encoding direction
         num_pe_samples: (positive int) number of samples in phase-encoding direction
         kx_max: (positive float) maximum value of kx to sample
@@ -112,12 +72,8 @@ def generate_kspace_pulses(pulse_tip,num_fe_samples,num_pe_samples,kx_max,ky_max
         delta_t: (positive float) time step for simulation
     Returns:
         kspace_pulses: (list of Pulse objects) set of readout pulses to sample given region of kspace
-    Note:
-        kmove_time must be greater than half the tipping pulse time (see a 2DFT sequence diagram)
     """
     # Check params
-    if not (isinstance(pulse_tip,Pulse)):
-        raise TypeError("pulse_tip must be a Pulse object")
     if not (isinstance(num_fe_samples,int) and num_fe_samples > 0):
         raise TypeError("num_fe_samples must be a positive int")
     if not (isinstance(num_pe_samples,int) and num_pe_samples > 0):
@@ -134,15 +90,6 @@ def generate_kspace_pulses(pulse_tip,num_fe_samples,num_pe_samples,kx_max,ky_max
         raise TypeError("gyromagnetic_ratio must be a float")
     if not (isinstance(delta_t,float) and delta_t > 0):
         raise TypeError("delta_t must be a positive float")
-    if not (kmove_time > pulse_tip.length*delta_t/2.0):
-        print("kmove_time: " + str(kmove_time*1e3))
-        print("pulse_tip time: " + str(pulse_tip.length*delta_t*1e3/2.0))
-        raise ValueError("kmove_time must be greater than half the tipping pulse time -- see a 2DFT sequence diagram")
-    # Refocusing lobe in longitudinal direction
-    pulse_tip_length = pulse_tip.length
-    Gz_tip_amp = pulse_tip.Gz[0]
-    pulse_refocus_length = int(pulse_tip_length/2)
-    Gz_refocus_lobe = -Gz_tip_amp*np.ones(pulse_refocus_length)
     # Phase-encoding direction parameters
     delta_ky = (2*ky_max)/(num_pe_samples-1)
     # Frequency-encoding direction parameters
@@ -176,8 +123,7 @@ def generate_kspace_pulses(pulse_tip,num_fe_samples,num_pe_samples,kx_max,ky_max
         # Gradients for sampling one line of kspace
         Gy = np.concatenate((Gy_kmove,Gy_kread))
         # Bundle into Pulse object
-        Gz = np.concatenate((Gz_refocus_lobe,np.zeros(kread_len+kmove_len-pulse_refocus_length)))
-        pulse = Pulse(mode='free',Gx=Gx,Gy=Gy,Gz=Gz,readout=readout,delta_t=delta_t)
+        pulse = Pulse(mode='free',Gx=Gx,Gy=Gy,readout=readout,delta_t=delta_t)
         kspace_pulses.append(pulse)
     return kspace_pulses
 

@@ -1,0 +1,44 @@
+\documentclass[dvipsnames]{beamer}
+\input{mybeamerdefs}
+\title{MRI Simulator Notes}
+\author{Liam}
+\date{\today}
+
+\begin{document}
+
+\begin{frame}
+\maketitle
+\end{frame}
+
+\begin{frame}{Tasks}
+\begin{itemize}
+\item I wrote a function to generate a 2DFT sequence
+\end{itemize}
+\end{frame}
+
+\section{2DFT pulse sequence}
+
+\begin{frame}{Summary}
+\begin{itemize}
+\item See the figure on the next slide.
+\item The left column shows the excitation pulse.
+\item The right column shows the set of k-space sampling pulses. The only difference between the sampling pulses is the amplitude of $G_y$ to change the line height in k-space.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{2DFT pulse sequence example}
+\begin{center}
+\includegraphics[height=0.8\textheight]{{pulse_sequence_2dft}}
+\end{center}
+\end{frame}
+
+\begin{frame}{Comments}
+\begin{itemize}
+\item The basic shape of each waveforms looks as expected.
+\item I am not sure what realistic values are for the various parameters -- maybe this is something we can discuss?
+\end{itemize}
+\end{frame}
+
+\section{Next}
+
+\end{document}

@@ -1,0 +1,2 @@
+\beamer@sectionintoc {1}{2DFT pulse sequence}{3}{0}{1}
+\beamer@sectionintoc {2}{Next}{7}{0}{2}
