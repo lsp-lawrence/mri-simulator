@@ -3,9 +3,9 @@ from pypulse import Pulse
 import numpy as np
 import matplotlib.pyplot as plt
 
-see_pulse = True
+see_pulse = False
 pulse_name = 'excitation_refocus_pulse.pdf'
-run_simulation = False
+run_simulation = True
 sim_name = 'excitation_refocus.pdf'
 save_fig = False
 

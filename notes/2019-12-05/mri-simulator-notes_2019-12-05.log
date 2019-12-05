@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.4.10)  5 DEC 2019 10:24
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.4.10)  5 DEC 2019 15:54
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1036,10 +1036,10 @@ thkerncmss.
 ] [4
 
 ]
-<pulse_sequence_2dft.pdf, id=128, 578.16pt x 505.89pt>
+<pulse_sequence_2dft.pdf, id=146, 578.16pt x 505.89pt>
 File: pulse_sequence_2dft.pdf Graphic file (type pdf)
 <use pulse_sequence_2dft.pdf>
-Package pdftex.def Info: pulse_sequence_2dft.pdf  used on input line 33.
+Package pdftex.def Info: pulse_sequence_2dft.pdf  used on input line 36.
 (pdftex.def)             Requested size: 246.08086pt x 215.31812pt.
  [5
 
@@ -1047,7 +1047,45 @@ Package pdftex.def Info: pulse_sequence_2dft.pdf  used on input line 33.
 
 ] [7
 
+] [8
+
 ]
+<shift_2DFT_test.pdf, id=306, 462.52798pt x 346.89601pt>
+File: shift_2DFT_test.pdf Graphic file (type pdf)
+<use shift_2DFT_test.pdf>
+Package pdftex.def Info: shift_2DFT_test.pdf  used on input line 63.
+(pdftex.def)             Requested size: 287.08902pt x 215.31812pt.
+ [9
+
+ <./shift_2DFT_test.pdf>] [10
+
+] [11
+
+]
+<activity_monitor.png, id=424, 1328.965pt x 720.6925pt>
+File: activity_monitor.png Graphic file (type png)
+<use activity_monitor.png>
+Package pdftex.def Info: activity_monitor.png  used on input line 79.
+(pdftex.def)             Requested size: 307.28987pt x 166.63553pt.
+ [12
+
+ <./activity_monitor.png>] [13
+
+] [14
+
+] [15
+
+] [16
+
+]
+<density.pdf, id=556, 462.52798pt x 346.89601pt>
+File: density.pdf Graphic file (type pdf)
+<use density.pdf>
+Package pdftex.def Info: density.pdf  used on input line 105.
+(pdftex.def)             Requested size: 307.28987pt x 230.4765pt.
+ [17
+
+ <./density.pdf>]
 \tf@nav=\write6
 \openout6 = `mri-simulator-notes_2019-12-05.nav'.
 
@@ -1057,43 +1095,37 @@ Package pdftex.def Info: pulse_sequence_2dft.pdf  used on input line 33.
 \tf@snm=\write8
 \openout8 = `mri-simulator-notes_2019-12-05.snm'.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 44.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 44.
-
-(./mri-simulator-notes_2019-12-05.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 44.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 44.
-
-
-Package rerunfilecheck Warning: File `mri-simulator-notes_2019-12-05.out' has c
-hanged.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `mri-simulator-notes_2019-12-05.out'
-:
-(rerunfilecheck)             Before: BFF8BEBBFCF62B8F9067DD03E7F537F5;54
-(rerunfilecheck)             After:  07AA850325AE5A4E621CB69F687D88D3;93.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 107.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 107.
+ (./mri-simulator-notes_2019-12-05.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 107.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 107.
+Package rerunfilecheck Info: File `mri-simulator-notes_2019-12-05.out' has not 
+changed.
+(rerunfilecheck)             Checksum: 8E6C1FF856A4B5918A0B67C193D7A0E3;299.
  ) 
 Here is how much of TeX's memory you used:
- 21003 strings out of 492623
- 389463 string characters out of 6129552
- 649260 words of memory out of 5000000
- 24432 multiletter control sequences out of 15000+600000
- 10946 words of font info for 41 fonts, out of 8000000 for 9000
+ 21093 strings out of 492623
+ 390715 string characters out of 6129552
+ 650260 words of memory out of 5000000
+ 24493 multiletter control sequences out of 15000+600000
+ 11114 words of font info for 42 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  56i,14n,63p,1057b,563s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb
-></usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmss12.pfb>
-</usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></
-usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi10.pfb></
-usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi8.pfb></u
-sr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb
->
-Output written on mri-simulator-notes_2019-12-05.pdf (7 pages, 116120 bytes).
+</usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb
+></usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb>
+</usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmss12.pfb><
+/usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></u
+sr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi10.pfb></u
+sr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi8.pfb></us
+r/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr
+/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/
+local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb>
+Output written on mri-simulator-notes_2019-12-05.pdf (17 pages, 1897651 bytes).
+
 PDF statistics:
- 287 PDF objects out of 1000 (max. 8388607)
- 214 compressed objects within 3 object streams
- 17 named destinations out of 1000 (max. 500000)
- 56 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 663 PDF objects out of 1000 (max. 8388607)
+ 508 compressed objects within 6 object streams
+ 40 named destinations out of 1000 (max. 500000)
+ 103 words of extra memory for PDF output out of 10000 (max. 10000000)
 

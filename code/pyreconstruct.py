@@ -9,7 +9,8 @@ def reconstruct_from_2DFT(S,kx,ky):
     Returns:
         img: (2D numpy array of floats) MR image
     """
-    I = np.fft.fft2(S)
+    S_reordered = shift_2DFT(S)
+    I = np.fft.ifft2(S_reordered)
     return I
     
 def shift_2DFT(A):
@@ -36,5 +37,6 @@ def shift_2DFT(A):
     Ap[ry:,0:(rx+1)] = A[0:(ry+1),rx:]
     Ap[0:ry,(rx+1):] = A[(ry+1):,0:rx]
     Ap[ry:,(rx+1):] = A[0:(ry+1),0:rx]
+    Ap = np.flipud(Ap)
     return Ap
     

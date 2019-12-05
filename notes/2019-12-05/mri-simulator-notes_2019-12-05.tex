@@ -12,7 +12,10 @@
 
 \begin{frame}{Tasks}
 \begin{itemize}
-\item I wrote a function to generate a 2DFT sequence
+\item I wrote a function to generate a 2DFT pulse sequence.
+\item I wrote a function to reorder the matrix collected from the 2DFT sequence to an order suitable for calling the inverse DFT for image reconstruction.
+\item I called the simulation and checked the activity monitor.
+\item I started to write the script for simulating the 2DFT acquisition.
 \end{itemize}
 \end{frame}
 
@@ -39,6 +42,66 @@
 \end{itemize}
 \end{frame}
 
-\section{Next}
+\section{Matrix reordering function}
+
+\begin{frame}{Summary}
+\begin{itemize}
+\item I computed the DFT of
+\begin{equation*}
+f(m,n) = 1 + \cos((2\pi/N)m) + \cos((2\pi/N)n)
+\end{equation*}
+with $N = 11$ and $m,n = 0,\ldots,N-1$ using negative frequencies to generate the matrix $S\_{acquired}$ (DC value at centre of matrix, etc.)
+\item I computed $S\_{dft}$ from $S\_{acquired}$ using the \texttt{shift\_2DFT} function I wrote.
+\item I compared the image generated this way to $f(m,n)$ (image from theory).
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Test results}
+\begin{center}
+\includegraphics[height = 0.8\textheight]{{shift_2DFT_test}}
+\end{center}
+\end{frame}
+
+\section{Activity monitor}
+
+\begin{frame}{Summary}
+\begin{itemize}
+\item My MacBook has 2 cores.
+\item I ran the excitation simulation from 2019-12-04 and checked the activity monitor.
+\item The Python CPU usage exceeds 100\%.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Screenshot}
+\begin{center}
+\includegraphics[width=\textwidth]{{activity_monitor}}
+\end{center}
+\end{frame}
+
+\section{Applying relaxation during excitation}
+
+\begin{frame}{Summary}
+\begin{itemize}
+\item Right now, the excitation portion of the simulation represents the effect of each sample of the RF pulse by a rotation quaternion.
+\item The effect of the entire RF pulse is computed by multiplying all these rotation quaternions together. This is more efficient than multiplying all of the corresponding rotation matrices together.
+\item \href{https://computergraphics.stackexchange.com/questions/138/when-should-quaternions-be-used-to-represent-rotation-and-scaling-in-3d}{This post} on Stack Overflow seems to imply that you cannot represent non-uniform scaling (e.g. transverse and longitudinal relaxation) with quaternions; you need to use matrices.
+\item We can either continue to neglect relaxation during excitation or else I can implement excitation using matrices and incorporate relaxation (the former is more efficient; the latter is more true to the physics).
+\end{itemize}
+\end{frame}
+
+\section{Script for 2DFT simulation}
+
+\begin{frame}{Summary}
+\begin{itemize}
+\item I distributed ems according to a Gaussian curve in $x$ and $y$ as shown in the figure following (with $z = 0$).
+\item I will try to image this distribution of ems with a 2DFT pulse sequence tomorrow.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\includegraphics[width=\textwidth]{{density}}
+\end{center}
+\end{frame}
 
 \end{document}
