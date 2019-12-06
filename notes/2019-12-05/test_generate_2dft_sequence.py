@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Running params
-save_fig = True
+save_fig = False
 fig_name = 'pulse_sequence_2dft.jpg'
 
 # Declare params

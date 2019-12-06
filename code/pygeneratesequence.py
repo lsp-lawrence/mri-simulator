@@ -1,15 +1,16 @@
 import numpy as np
 from pypulse import Pulse
+import matplotlib.pyplot as plt
 
-def generate_2DFT_sequence(main_field,Gz_amplitude,slice_width,gyromagnetic_ratio,num_fe_samples,num_pe_samples,kx_max,ky_max,kmove_time,adc_rate,delta_t):
+def generate_2DFT_sequence(main_field,Gz_amplitude,slice_width,gyromagnetic_ratio,fe_sample_radius,pe_sample_radius,kx_max,ky_max,kmove_time,adc_rate,delta_t):
     """Generates a 2DFT pulse sequence
     Params:
         main_field: (positive float) main magnetic field
         Gz_amplitude: (positive float) z-gradient amplitude
         slice_width: (postive float) width of the slice
         gyromagnetic_ratio: (float) gyromagnetic ratio of species to be imaged
-        num_fe_samples: (positive int) number of samples in frequency-encoding direction
-        num_pe_samples: (positive int) number of samples in phase-encoding direction
+        fe_sample_radius: (positive int) number of samples in frequency-encoding direction
+        pe_sample_radius: (positive int) number of samples in phase-encoding direction
         kx_max: (positive float) maximum value of kx to sample
         ky_max: (positive float) maximum value of ky to sample
         kmove_time: (positive float) time to move to each location in kspace
@@ -19,10 +20,10 @@ def generate_2DFT_sequence(main_field,Gz_amplitude,slice_width,gyromagnetic_rati
         pulse_sequence: (list of Pulse objects) a 2DFT pulse sequence
     """
     # Check params
-    if not (isinstance(num_fe_samples,int) and num_fe_samples > 0):
-        raise TypeError("num_fe_samples must be a positive int")
-    if not (isinstance(num_pe_samples,int) and num_pe_samples > 0):
-        raise TypeError("num_pe_samples must be a positive int")
+    if not (isinstance(fe_sample_radius,int) and fe_sample_radius > 0):
+        raise TypeError("fe_sample_radius must be a positive int")
+    if not (isinstance(pe_sample_radius,int) and pe_sample_radius > 0):
+        raise TypeError("pe_sample_radius must be a positive int")
     if not (isinstance(kx_max,float) and kx_max > 0):
         raise TypeError("kx_max must be a positive float")
     if not (isinstance(ky_max,float) and ky_max > 0):
@@ -44,8 +45,9 @@ def generate_2DFT_sequence(main_field,Gz_amplitude,slice_width,gyromagnetic_rati
     # Create pulse sequence
     tip_angle = np.pi/2.0
     pulse_tip = generate_tipping_pulse(gyromagnetic_ratio,main_field,Gz_amplitude,slice_width,tip_angle,delta_t)
-    kspace_pulses = generate_kspace_pulses(pulse_tip,num_fe_samples,num_pe_samples,kx_max,ky_max,kmove_time,adc_rate,gyromagnetic_ratio,delta_t)
+    kspace_pulses = generate_kspace_pulses(pulse_tip,fe_sample_radius,pe_sample_radius,kx_max,ky_max,kmove_time,adc_rate,gyromagnetic_ratio,delta_t)
     pulse_sequence = []
+    num_pe_samples = int(2*pe_sample_radius+1)
     for line_no in range(num_pe_samples):
         pulse_sequence.append(pulse_tip)
         pulse_sequence.append(kspace_pulses[line_no])
@@ -98,12 +100,12 @@ def generate_tipping_pulse(gyromagnetic_ratio,main_field,Gz_amplitude,slice_widt
     return pulse_tip
     
 
-def generate_kspace_pulses(pulse_tip,num_fe_samples,num_pe_samples,kx_max,ky_max,kmove_time,adc_rate,gyromagnetic_ratio,delta_t):
+def generate_kspace_pulses(pulse_tip,fe_sample_radius,pe_sample_radius,kx_max,ky_max,kmove_time,adc_rate,gyromagnetic_ratio,delta_t):
     """Generates the set of pulses necessary to sample desired region of kspace using Cartesian sampling
     Params:
         pulse_tip: (Pulse object) tipping pulse in spin-echo sequence
-        num_fe_samples: (positive int) number of samples in frequency-encoding direction
-        num_pe_samples: (positive int) number of samples in phase-encoding direction
+        fe_sample_radius: (positive int) radius of number of samples in frequency-encoding direction
+        pe_sample_radius: (positive int) radius of number of samples in phase-encoding direction
         kx_max: (positive float) maximum value of kx to sample
         ky_max: (positive float) maximum value of ky to sample
         kmove_time: (positive float) time to move to each location in kspace
@@ -112,16 +114,17 @@ def generate_kspace_pulses(pulse_tip,num_fe_samples,num_pe_samples,kx_max,ky_max
         delta_t: (positive float) time step for simulation
     Returns:
         kspace_pulses: (list of Pulse objects) set of readout pulses to sample given region of kspace
-    Note:
+    Notes:
         kmove_time must be greater than half the tipping pulse time (see a 2DFT sequence diagram)
+        the fact that num_fe_samples and num_pe_samples are odd numbers is necessary for shift_2DFT function
     """
     # Check params
     if not (isinstance(pulse_tip,Pulse)):
         raise TypeError("pulse_tip must be a Pulse object")
-    if not (isinstance(num_fe_samples,int) and num_fe_samples > 0):
-        raise TypeError("num_fe_samples must be a positive int")
-    if not (isinstance(num_pe_samples,int) and num_pe_samples > 0):
-        raise TypeError("num_pe_samples must be a positive int")
+    if not (isinstance(fe_sample_radius,int) and fe_sample_radius > 0):
+        raise TypeError("fe_sample_radius must be a positive int")
+    if not (isinstance(pe_sample_radius,int) and pe_sample_radius > 0):
+        raise TypeError("pe_sample_radius must be a positive int")
     if not (isinstance(kx_max,float) and kx_max > 0):
         raise TypeError("kx_max must be a positive float")
     if not (isinstance(ky_max,float) and ky_max > 0):
@@ -138,6 +141,9 @@ def generate_kspace_pulses(pulse_tip,num_fe_samples,num_pe_samples,kx_max,ky_max
         print("kmove_time: " + str(kmove_time*1e3))
         print("pulse_tip time: " + str(pulse_tip.length*delta_t*1e3/2.0))
         raise ValueError("kmove_time must be greater than half the tipping pulse time -- see a 2DFT sequence diagram")
+    # Compute number of pe and fe samples
+    num_fe_samples = int(2*fe_sample_radius+1)
+    num_pe_samples =  int(2*pe_sample_radius+1)
     # Refocusing lobe in longitudinal direction
     pulse_tip_length = pulse_tip.length
     Gz_tip_amp = pulse_tip.Gz[0]
@@ -203,4 +209,51 @@ def determine_kspace_sampling(readout_pulses,gyromagnetic_ratio,delta_t):
     kx_trajectory = gyromagnetic_ratio/(2*np.pi)*np.cumsum(pulse.Gx)*delta_t
     kx = kx_trajectory[pulse.readout]
     return kx,ky
-    
+
+def see_2DFT_sequence(pulse_sequence):
+    """Creates a plot of the 2DFT pulse sequence
+    Params:
+        pulse_sequence: (list of Pulse objects) a 2DFT pulse sequence generated by generate_2DFT_sequence
+    """
+    # Plot pulse sequence
+    plt.figure(figsize=(8,7))
+    num_pe_samples = int(len(pulse_sequence)/2)
+    delta_t = pulse_sequence[0].delta_t
+    for line_no in range(num_pe_samples):
+        pulse_index = line_no*2
+        pulse_tip = pulse_sequence[pulse_index]
+        t_tip = np.linspace(0.0,pulse_tip.length*delta_t,pulse_tip.length)
+        pulse_kspace = pulse_sequence[pulse_index+1]
+        t_kspace = np.linspace(0.0,pulse_kspace.length*delta_t,pulse_kspace.length)
+        plt.subplot(421)
+        plt.plot(t_tip*1e3,pulse_tip.Gz*1e4)
+        plt.title('Tip-Gz')
+        plt.xlabel('Time (ms)')
+        plt.ylabel('Amplitude (uT/cm)')
+        plt.subplot(423)
+        plt.plot(t_tip*1e3,pulse_tip.B1x*1e6)
+        plt.title('Tip-B1x')
+        plt.xlabel('Time (ms)')
+        plt.ylabel('Amplitude (uT)')
+        plt.subplot(422)
+        plt.plot(t_kspace*1e3,pulse_kspace.Gz*1e4)
+        plt.title('Kspace-Gz')
+        plt.xlabel('Time (ms)')
+        plt.ylabel('Amplitude (uT/cm)')
+        plt.subplot(424)
+        plt.plot(t_kspace*1e3,pulse_kspace.Gy*1e5)
+        plt.title('Kspace-Gy')
+        plt.xlabel('Time (ms)')
+        plt.ylabel('Amplitude (uT/mm)')
+        plt.subplot(426)
+        plt.plot(t_kspace*1e3,pulse_kspace.Gx*1e5)
+        plt.title('Kspace-Gx')
+        plt.xlabel('Time (ms)')
+        plt.ylabel('Amplitude (uT/mm)')
+        plt.subplot(428)
+        plt.plot(t_kspace*1e3,pulse_kspace.readout,'o')
+        plt.title('Kspace-Read ADC?')
+        plt.ylabel('T/F')
+        plt.xlabel('Time (ms)')
+    plt.tight_layout()
+    plt.show()

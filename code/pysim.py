@@ -55,11 +55,13 @@ class Sim:
     def run_sim(self):
         """Runs the simulation
         Returns:
-            ems: list of ems
-            mr_signals: mr_signals
+            ems: (list of Em objects) em objects at final time point
+            mr_signals: (list of 1D numpy arrays of floats) MR signals from acquisition
         """
         mr_signals = []
-        for pulse in self.pulse_sequence:
+        sequence_length = len(self.pulse_sequence)
+        for pulse_no,pulse in zip(range(sequence_length),self.pulse_sequence):
+            print('applying pulse number ' + str(pulse_no) + ' of ' + str(sequence_length) + ' pulses')
             mr_signal = self._apply_pulse(pulse)
             if pulse.signal_collected:
                 mr_signals.append(mr_signal)

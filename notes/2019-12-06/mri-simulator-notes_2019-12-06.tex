@@ -1,0 +1,61 @@
+\documentclass[dvipsnames]{beamer}
+\input{mybeamerdefs}
+\title{MRI Simulator Notes}
+\author{Liam}
+\date{\today}
+
+\begin{document}
+
+\begin{frame}
+\maketitle
+\end{frame}
+
+\begin{frame}{Tasks}
+\begin{itemize}
+\item I computed the parameter requirements for the simulation
+\end{itemize}
+\end{frame}
+
+\section{Parameter requirements}
+
+\begin{frame}{Summary}
+\begin{itemize}
+\item The ems are arranged in a grid, with the number of grid points in each dimension being $2r_{\rm grid}+1$, with $r_{\rm grid}$ an integer.
+\item The ems are placed at $x = [-x_{\rm lim}: \Delta x: x_{\rm lim}]$, where $\Delta x = x_{\rm lim}/r_{\rm grid}$ and similarly for $y$.
+\item The number of samples of k-space taken in the phase-encoding direction ($y$) is $2r_{\rm pe}+1$ and the number of samples taken in the frequency-encoding direction ($x$) is $2r_{\rm fe}+1$, with $r_{\rm pe}$ and $r_{\rm fe}$ integers.
+\item We require the field-of-view to satisfy $FOV_x \geq 2x_{\rm lim}$ and $FOV_y \geq 2y_{\rm lim}$.
+\item We require a pixel dimension of $\Delta x \times \Delta y$.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\begin{itemize}
+\item For the field-of-view requirements, we use
+\begin{equation*}
+FOV_x = \frac{1}{\Delta k_x}\,,
+\end{equation*}
+where $\Delta k_x$ is the spacing between k-space samples in the $x$ direction, and similarly for $y$.
+\item For the pixel size requirements, we use
+\begin{equation*}
+\delta_x \approx \frac{1}{2k_{x,max}}\,,
+\end{equation*}
+where $\delta_x$ is the spatial resolution in $x$ and $k_{x,max}$ is the maximum sample of k-space in the $x$ direction, and similarly for $y$.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+For the FOV requirements, I find
+\begin{equation*}
+\frac{r_{\rm fe}}{k_{x,max}} \geq 2x_{\rm lim}\,, \quad \frac{r_{\rm pe}}{k_{y,max}} \geq 2y_{\rm lim}\,.
+\end{equation*}
+For the pixel size requirements, I find
+\begin{equation*}
+\frac{x_{\rm lim}}{r_{\rm grid}} = \frac{1}{2k_{x,max}}\,, \quad \frac{y_{\rm lim}}{r_{\rm grid}} = \frac{1}{2k_{y,max}}\,.
+\end{equation*}
+\end{frame}
+
+\begin{frame}{Comments}
+
+\end{frame}
+
+\end{document}
