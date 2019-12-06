@@ -39,6 +39,7 @@ class Sim:
         if (not isinstance(pulse_sequence,list)) or (not all([isinstance(item,Pulse) for item in pulse_sequence])):
             raise TypeError("pulse_sequence must be a list of Pulse objects")
         # Main
+        self.gamma = em_gyromagnetic_ratio
         self.num_ems = em_positions.shape[0]
         self.T1_map = T1_map
         self.T2_map = T2_map
@@ -56,17 +57,18 @@ class Sim:
         """Runs the simulation
         Returns:
             ems: (list of Em objects) em objects at final time point
-            mr_signals: (list of 1D numpy arrays of floats) MR signals from acquisition
+            mr: (list of 1D numpy arrays of floats) MR signals from acquisition
         """
-        mr_signals = []
+        mrs = []
         sequence_length = len(self.pulse_sequence)
         for pulse_no,pulse in zip(range(sequence_length),self.pulse_sequence):
             print('applying pulse number ' + str(pulse_no) + ' of ' + str(sequence_length) + ' pulses')
             mr_signal = self._apply_pulse(pulse)
             if pulse.signal_collected:
-                mr_signals.append(mr_signal)
+                mr_baseband = self._demodulate(mr_signal,pulse)
+                mrs.append(mr_baseband)
         ems = self.ems
-        return ems, mr_signals
+        return ems, mrs
     
     def _find_T1(self,position):
         """Returns the T1 at given position
@@ -167,3 +169,24 @@ class Sim:
         for em in self.ems:
             mr_signal = mr_signal + em.mu[0] + 1j*em.mu[1]
         return mr_signal
+
+    def _demodulate(self,mr_signal,pulse):
+        """Demodulates the MR signal
+        Params:
+            mr_signal: (1D numpy array of complex) MR signal acquired
+            pulse: (Pulse object) pulse used to generate mr_signal
+        Returns:
+            mr_baseband: (1D numpy array of complex) demodulated MR signal
+        """
+        num_samples = len(mr_signal)
+        mr_baseband = np.empty(num_samples,dtype=complex)
+        omega_0 = self.gamma*self.B0
+        readout_times = np.empty(num_samples)
+        time_index = 0
+        for index in range(pulse.length):
+            if pulse.readout[index]:
+                readout_times[time_index] = index*pulse.delta_t
+                time_index = time_index + 1       
+        for sample_no in range(num_samples):
+            mr_baseband[sample_no] = mr_signal[sample_no]*np.exp(1j*omega_0*readout_times[sample_no])
+        return mr_baseband

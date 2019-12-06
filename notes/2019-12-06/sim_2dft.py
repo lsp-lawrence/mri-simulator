@@ -69,7 +69,15 @@ if run_sim:
         return 100.0
     print('beginning sim with ' + str(num_ems) + ' ems')
     sim = Sim(em_magnetizations,em_positions,em_velocities,em_gyromagnetic_ratio,em_shielding_constants,em_equilibrium_magnetization,T1_map,T2_map,main_field,pulse_sequence)
-    ems,mr_signals = sim.run_sim()
+    ems,mrs = sim.run_sim()
+
+    num_pe_samples = int(2*pe_sample_radius+1)
+    num_fe_samples = int(2*fe_sample_radius+1)
+    S = np.empty([num_pe_samples,num_fe_samples],dtype=complex)
+    for line_no in range(num_pe_samples):
+        S[line_no,:] = mrs[line_no]
+    np.savetxt('S_real.csv',np.real(S),delimiter=',',fmt='%.5f')
+    np.savetxt('S_imag.csv',np.imag(S),delimiter=',',fmt='%.5f')
 
 ##        # Plot excitation
 ##        z = np.empty(num_ems,dtype=float)
