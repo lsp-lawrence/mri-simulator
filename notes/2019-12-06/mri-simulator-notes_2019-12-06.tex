@@ -14,6 +14,7 @@
 \begin{itemize}
 \item I computed the required parameters for the proper FOV and pixel size for the simulation.
 \item I ran the excitation simulation of 2019-12-04 on Supershop and tracked the resource usage.
+\item I wrote more code for the 2DFT simulation.
 \end{itemize}
 \end{frame}
 
@@ -59,8 +60,8 @@ For the pixel size requirements, I find
 
 \begin{frame}{Summary}
 \begin{itemize}
-\item The memory usage as a function of the number of ems is shown on the following slide.
-\item The CPU usage from \texttt{top} never exceeded 100\%.
+\item The memory usage as a function of the number of ems is shown on the following slide for 1000, 2000, 5000, 10000 ems.
+\item The maximum CPU usage from \texttt{top} that I observed was 969\% for $10^9$ ems (I did not run the simulation to completion). I suppose this means Python is using multiple cores automatically?
 \end{itemize}
 \end{frame}
 
@@ -70,6 +71,34 @@ For the pixel size requirements, I find
 
 1.8 kB per em
 \end{center}
+\end{frame}
+
+\section{2DFT simulation}
+
+\begin{frame}{Summary}
+\begin{itemize}
+\item I simulated a 2DFT pulse sequence with ems distributed as shown in the next slide.
+\item The reconstruction is the slide following.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Distribution of ems}
+\begin{center}
+\includegraphics[height=0.8\textheight]{dist}
+\end{center}
+\end{frame}
+
+\begin{frame}{Reconstruction}
+\begin{center}
+\includegraphics[height=0.8\textheight]{reconstruction}
+\end{center}
+\end{frame}
+
+\begin{frame}{Comments}
+\begin{itemize}
+\item It looks like the reconstruction has a spatial shift.
+\item The intensity values don't look quite right either.
+\end{itemize}
 \end{frame}
 
 \end{document}

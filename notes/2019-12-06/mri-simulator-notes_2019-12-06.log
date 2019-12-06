@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.4.10)  6 DEC 2019 11:50
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.4.10)  6 DEC 2019 13:50
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1044,14 +1044,37 @@ thkerncmss.
 ] [8
 
 ]
-<supershop_resource_usage.pdf, id=239, 462.52798pt x 346.89601pt>
+<supershop_resource_usage.pdf, id=245, 462.52798pt x 346.89601pt>
 File: supershop_resource_usage.pdf Graphic file (type pdf)
 <use supershop_resource_usage.pdf>
-Package pdftex.def Info: supershop_resource_usage.pdf  used on input line 73.
+Package pdftex.def Info: supershop_resource_usage.pdf  used on input line 74.
 (pdftex.def)             Requested size: 287.08902pt x 215.31812pt.
  [9
 
- <./supershop_resource_usage.pdf>]
+ <./supershop_resource_usage.pdf>] [10
+
+] [11
+
+]
+<dist.png, id=355, 462.528pt x 346.896pt>
+File: dist.png Graphic file (type png)
+<use dist.png>
+Package pdftex.def Info: dist.png  used on input line 89.
+(pdftex.def)             Requested size: 287.08904pt x 215.31812pt.
+
+[12
+
+ <./dist.png>]
+<reconstruction.pdf, id=384, 462.52798pt x 346.89601pt>
+File: reconstruction.pdf Graphic file (type pdf)
+<use reconstruction.pdf>
+Package pdftex.def Info: reconstruction.pdf  used on input line 95.
+(pdftex.def)             Requested size: 287.08902pt x 215.31812pt.
+ [13
+
+ <./reconstruction.pdf>] [14
+
+]
 \tf@nav=\write6
 \openout6 = `mri-simulator-notes_2019-12-06.nav'.
 
@@ -1061,21 +1084,21 @@ Package pdftex.def Info: supershop_resource_usage.pdf  used on input line 73.
 \tf@snm=\write8
 \openout8 = `mri-simulator-notes_2019-12-06.snm'.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 75.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 75.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 104.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 104.
 
 (./mri-simulator-notes_2019-12-06.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 75.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 75.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 104.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 104.
 Package rerunfilecheck Info: File `mri-simulator-notes_2019-12-06.out' has not 
 changed.
-(rerunfilecheck)             Checksum: 6AD82AD51DD58C3EE202B84ED2007F6D;119.
+(rerunfilecheck)             Checksum: 9EA53CB0FFAD5DB0481EC31E1A6F5835;169.
  ) 
 Here is how much of TeX's memory you used:
- 21028 strings out of 492623
- 389819 string characters out of 6129552
+ 21065 strings out of 492623
+ 390241 string characters out of 6129552
  651260 words of memory out of 5000000
- 24450 multiletter control sequences out of 15000+600000
+ 24472 multiletter control sequences out of 15000+600000
  11714 words of font info for 44 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  56i,14n,63p,1057b,563s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -1090,10 +1113,10 @@ cal/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi8.pfb></usr/loc
 al/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/loca
 l/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local
 /texlive/2019/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb>
-Output written on mri-simulator-notes_2019-12-06.pdf (9 pages, 119753 bytes).
+Output written on mri-simulator-notes_2019-12-06.pdf (14 pages, 171532 bytes).
 PDF statistics:
- 341 PDF objects out of 1000 (max. 8388607)
- 281 compressed objects within 3 object streams
- 21 named destinations out of 1000 (max. 500000)
- 64 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 499 PDF objects out of 1000 (max. 8388607)
+ 418 compressed objects within 5 object streams
+ 32 named destinations out of 1000 (max. 500000)
+ 82 words of extra memory for PDF output out of 10000 (max. 10000000)
 

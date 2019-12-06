@@ -4,9 +4,9 @@ from pygeneratesequence import generate_2DFT_sequence, see_2DFT_sequence
 import matplotlib.pyplot as plt
 import numpy as np
 
-see_distribution = False
+see_distribution = True
 see_sequence = False
-run_sim = True
+run_sim = False
 save_fig = False
 fig_name = 'density.pdf'
 

@@ -28,7 +28,7 @@ def shift_2DFT(A):
     if not (np.mod(num_rows,2) != 0 and np.mod(num_cols,2) != 0):
         raise ValueError("A must have an odd number of rows and columns")
     # Reorder
-    Ap = np.empty([num_rows,num_cols])
+    Ap = np.empty([num_rows,num_cols],dtype=A.dtype)
     ry = int(num_rows/2)
     rx = int(num_cols/2)
     Ap[0:ry,0:(rx+1)] = A[(ry+1):,rx:]

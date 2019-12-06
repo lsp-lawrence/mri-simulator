@@ -9,5 +9,5 @@ S = S_real+1j*S_imag
 img = np.abs(reconstruct_from_2DFT(S))
 plt.figure()
 plt.imshow(img)
-plt.show()
-
+plt.colorbar()
+plt.savefig('reconstruction.pdf')
