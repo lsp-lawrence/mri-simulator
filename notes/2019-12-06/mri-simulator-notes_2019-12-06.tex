@@ -12,7 +12,8 @@
 
 \begin{frame}{Tasks}
 \begin{itemize}
-\item I computed the parameter requirements for the simulation
+\item I computed the required parameters for the proper FOV and pixel size for the simulation.
+\item I ran the excitation simulation of 2019-12-04 on Supershop and tracked the resource usage.
 \end{itemize}
 \end{frame}
 
@@ -54,8 +55,21 @@ For the pixel size requirements, I find
 \end{equation*}
 \end{frame}
 
-\begin{frame}{Comments}
+\section{Resource usage on Supershop}
 
+\begin{frame}{Summary}
+\begin{itemize}
+\item The memory usage as a function of the number of ems is shown on the following slide.
+\item The CPU usage from \texttt{top} never exceeded 100\%.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\includegraphics[height=0.8\textheight]{{supershop_resource_usage}}
+
+1.8 kB per em
+\end{center}
 \end{frame}
 
 \end{document}

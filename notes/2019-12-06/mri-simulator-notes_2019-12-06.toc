@@ -1,1 +1,2 @@
 \beamer@sectionintoc {1}{Parameter requirements}{3}{0}{1}
+\beamer@sectionintoc {2}{Resource usage on Supershop}{7}{0}{2}

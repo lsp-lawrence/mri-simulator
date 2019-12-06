@@ -1,12 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+from pyreconstruct import reconstruct_from_2DFT
 
-df = pd.read_csv('mr.csv',sep=',',header=None)
-df = df.str.replace('i','j').apply(lambda x: np.complex(x))
-mr = df.to_numpy()
+mr_real = pd.read_csv('mr_real.csv',sep=' ',header=None).values
+mr_imag = pd.read_csv('mr_imag.csv',sep=' ',header=None).values
+S = mr_real+1j*mr_imag
+img = reconstruct_from_2DFT(S)
+plt.figure()
+plt.imshow(np.real(img))
+plt.show()
 
-##plt.figure()
-##for sig_no in range(mr.shape[0]):
-##    plt.plot(np.real(mr[sig_no,:]))
-##plt.show()

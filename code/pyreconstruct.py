@@ -1,17 +1,15 @@
 import numpy as np
 
-def reconstruct_from_2DFT(S,kx,ky):
+def reconstruct_from_2DFT(S):
     """Reconstructs an MR image from a 2DFT pulse sequence
     Params:
         S: (2D numpy array of floats) S_{ij} = M[kx[i],ky[j]], where M[kx,ky] = Fourier transform of magnetization m[x,y]
-        kx: (1D numpy array of floats) vector of samples in kx direction
-        ky: (1D numpy array of floats) vector of samples in ky direction
     Returns:
         img: (2D numpy array of floats) MR image
     """
-    S_reordered = shift_2DFT(S)
-    I = np.fft.ifft2(S_reordered)
-    return I
+    S_dft = shift_2DFT(S)
+    img = np.fft.ifft2(S_dft)
+    return img
     
 def shift_2DFT(A):
     """Shifts a 2DFT matrix ordered with negative frequency convention to a 2DFT matrix ordered with IFFT convention
