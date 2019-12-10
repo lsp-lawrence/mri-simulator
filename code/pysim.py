@@ -62,11 +62,11 @@ class Sim:
         mrs = []
         sequence_length = len(self.pulse_sequence)
         for pulse_no,pulse in zip(range(sequence_length),self.pulse_sequence):
-            print('applying pulse number ' + str(pulse_no) + ' of ' + str(sequence_length) + ' pulses')
+            print('applying pulse number ' + str(pulse_no+1) + '/' + str(sequence_length) + ' with mode = ' + pulse.mode)
             mr_signal = self._apply_pulse(pulse)
             if pulse.signal_collected:
-                mr_baseband = self._demodulate(mr_signal,pulse)
-                mrs.append(mr_baseband)
+                mr_signal = self._demodulate(mr_signal,pulse)
+                mrs.append(mr_signal)
         ems = self.ems
         return ems, mrs
     
