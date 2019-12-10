@@ -11,11 +11,10 @@ S_real = pd.read_csv('S_real.csv',sep=',',header=None).values
 S_imag = pd.read_csv('S_imag.csv',sep=',',header=None).values
 S = S_real+1j*S_imag
 
-print(np.angle(S))
-print(np.angle(adjust_phase(S)))
-
 img = reconstruct_from_2DFT(S)
 plt.figure()
 plt.imshow(img)
-plt.colorbar()
+plt.colorbar(label='intensity')
+plt.xlabel('X position (a.u.)')
+plt.ylabel('Y position (a.u.)')
 plt.show()

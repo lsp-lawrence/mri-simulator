@@ -64,6 +64,7 @@ class Sim:
         for pulse_no,pulse in zip(range(sequence_length),self.pulse_sequence):
             print('applying pulse number ' + str(pulse_no+1) + '/' + str(sequence_length) + ' with mode = ' + pulse.mode)
             mr_signal = self._apply_pulse(pulse)
+            #self._print_debug()
             if pulse.signal_collected:
                 mr_signal = self._demodulate(mr_signal,pulse)
                 mrs.append(mr_signal)
@@ -190,3 +191,7 @@ class Sim:
         for sample_no in range(num_samples):
             mr_baseband[sample_no] = mr_signal[sample_no]*np.exp(1j*omega_0*readout_times[sample_no])
         return mr_baseband
+
+    def _print_debug(self):
+        for em_no,em in zip(range(len(self.ems)),self.ems):
+            print('mu['+str(em_no)+'] = '+ str(em.mu))
