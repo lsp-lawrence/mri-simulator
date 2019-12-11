@@ -2,7 +2,7 @@ import numpy as np
 from pypulse import Pulse
 import matplotlib.pyplot as plt
 
-def generate_2DFT_sequence(main_field,Gz_amplitude,slice_width,gyromagnetic_ratio,fe_sample_radius,pe_sample_radius,kx_max,ky_max,kmove_time,adc_rate,delta_t,read_all,relaxation_time):
+def generate_2DFT_sequence(main_field,Gz_amplitude,slice_width,gyromagnetic_ratio,fe_sample_radius,pe_sample_radius,kx_max,ky_max,kmove_time,kread_time,repetition_time,delta_t,read_all):
     """Generates a 2DFT pulse sequence
     Params:
         main_field: (positive float) main magnetic field
@@ -14,12 +14,14 @@ def generate_2DFT_sequence(main_field,Gz_amplitude,slice_width,gyromagnetic_rati
         kx_max: (positive float) maximum value of kx to sample
         ky_max: (positive float) maximum value of ky to sample
         kmove_time: (positive float) time to move to each location in kspace
-        adc_rate: (positive float) sampling rate of ADC in Hz
+        kread_time: (positive float) time to readout kspace line
+        repetition_time: (positive float) time between excitations
         delta_t: (positive float) time step for simulation
         read_all: (bool) if true, then record the MR signal for all time steps during the read time
-        relaxation_time: (positive float) time for relaxation pulse
     Returns:
         pulse_sequence: (list of Pulse objects) a 2DFT pulse sequence
+    Note:
+        repitition_time must be greater than the excitation pulse + kspace readout pulse lengths
     """
     # Check params
     if not (isinstance(fe_sample_radius,int) and fe_sample_radius > 0):
@@ -32,8 +34,8 @@ def generate_2DFT_sequence(main_field,Gz_amplitude,slice_width,gyromagnetic_rati
         raise TypeError("ky_max must be a positive float")
     if not (isinstance(kmove_time,float) and kmove_time > 0):
         raise TypeError("kmove_time must be a positive float")
-    if not (isinstance(adc_rate,float) and adc_rate > 0):
-        raise TypeError("adc_rate must be a positive float")
+    if not (isinstance(kread_time,float) and kread_time > 0):
+        raise TypeError("kread_time must be a positive float")
     if not isinstance(gyromagnetic_ratio,float):
         raise TypeError("gyromagnetic_ratio must be a float")
     if not (isinstance(delta_t,float) and delta_t > 0):
@@ -46,12 +48,15 @@ def generate_2DFT_sequence(main_field,Gz_amplitude,slice_width,gyromagnetic_rati
         raise TypeError('slice_width must be a positive float')
     if not (isinstance(read_all,bool)):
         raise TypeError("read_all must be a bool")
-    if not(isinstance(relaxation_time,float) and relaxation_time>0):
-        raise TypeError("relaxation_time must be a positive float")
+    if not(isinstance(repetition_time,float) and repetition_time>0):
+        raise TypeError("repetition_time must be a positive float")
     # Create pulse sequence
     tip_angle = np.pi/2.0
     pulse_tip = generate_tipping_pulse(gyromagnetic_ratio,main_field,Gz_amplitude,slice_width,tip_angle,delta_t)
-    kspace_pulses = generate_kspace_pulses(pulse_tip,fe_sample_radius,pe_sample_radius,kx_max,ky_max,kmove_time,adc_rate,gyromagnetic_ratio,delta_t,read_all)
+    kspace_pulses = generate_kspace_pulses(pulse_tip,fe_sample_radius,pe_sample_radius,kx_max,ky_max,kmove_time,kread_time,gyromagnetic_ratio,delta_t,read_all)
+    tipping_time = pulse_tip.length*delta_t
+    readout_time = kspace_pulses[0].length*delta_t
+    relaxation_time = repetition_time-readout_time-tipping_time
     pulse_relax = generate_relaxation_pulse(relaxation_time,delta_t)
     pulse_sequence = []
     num_pe_samples = int(2*pe_sample_radius+1)
@@ -128,7 +133,7 @@ def generate_tipping_pulse(gyromagnetic_ratio,main_field,Gz_amplitude,slice_widt
 
     return pulse_tip
 
-def generate_kspace_pulses(pulse_tip,fe_sample_radius,pe_sample_radius,kx_max,ky_max,kmove_time,adc_rate,gyromagnetic_ratio,delta_t,read_all):
+def generate_kspace_pulses(pulse_tip,fe_sample_radius,pe_sample_radius,kx_max,ky_max,kmove_time,kread_time,gyromagnetic_ratio,delta_t,read_all):
     """Generates the set of pulses necessary to sample desired region of kspace using Cartesian sampling
     Params:
         pulse_tip: (Pulse object) tipping pulse in spin-echo sequence
@@ -137,7 +142,7 @@ def generate_kspace_pulses(pulse_tip,fe_sample_radius,pe_sample_radius,kx_max,ky
         kx_max: (positive float) maximum value of kx to sample
         ky_max: (positive float) maximum value of ky to sample
         kmove_time: (positive float) time to move to each location in kspace
-        adc_rate: (positive float) sampling rate of ADC in Hz
+        kread_time: (positive float) time for readout of kspace line
         gyromagnetic_ratio: (float) gyromagnetic ratio of species to be imaged
         delta_t: (positive float) time step for simulation
         read_all: (bool) if true, record the MR signal at all time steps during the read time
@@ -160,8 +165,8 @@ def generate_kspace_pulses(pulse_tip,fe_sample_radius,pe_sample_radius,kx_max,ky
         raise TypeError("ky_max must be a positive float")
     if not (isinstance(kmove_time,float) and kmove_time > 0):
         raise TypeError("kmove_time must be a positive float")
-    if not (isinstance(adc_rate,float) and adc_rate > 0):
-        raise TypeError("adc_rate must be a positive float")
+    if not (isinstance(kread_time,float) and kread_time > 0):
+        raise TypeError("kread_time must be a positive float")
     if not isinstance(gyromagnetic_ratio,float):
         raise TypeError("gyromagnetic_ratio must be a float")
     if not (isinstance(delta_t,float) and delta_t > 0):
@@ -183,10 +188,8 @@ def generate_kspace_pulses(pulse_tip,fe_sample_radius,pe_sample_radius,kx_max,ky
     # Phase-encoding direction parameters
     delta_ky = (2*ky_max)/(num_pe_samples-1)
     # Frequency-encoding direction parameters
-    T_adc = 1.0/adc_rate
-    adc_step = int(T_adc/delta_t)
+    adc_step = int(kread_time/(num_fe_samples*delta_t))
     # Common parameters
-    kread_time = num_fe_samples*adc_step*delta_t
     kread_len = (num_fe_samples-1)*adc_step+1
     kmove_len = int(kmove_time/delta_t)
     # Compute pulses in frequency-encoding direction
@@ -289,5 +292,40 @@ def see_2DFT_sequence(pulse_sequence):
         plt.title('Kspace-Read ADC?')
         plt.ylabel('T/F')
         plt.xlabel('Time (ms)')
+    plt.tight_layout()
+    plt.show()
+
+def see_readout_pulses(pulse_sequence):
+    """Creates a plot of the readout pulses of the 2DFT sequence
+    Params:
+        pulse_sequence: (list of Pulse objects) a 2DFT pulse sequence generated by generate_2DFT_sequence
+    """
+    # Plot pulse sequence
+    plt.figure(figsize=(4,8))
+    delta_t = pulse_sequence[0].delta_t
+    for pulse in pulse_sequence:
+        if (pulse.mode == 'free' and any(pulse.readout)):
+            pulse_kspace = pulse
+            t_kspace = np.linspace(0.0,pulse_kspace.length*delta_t,pulse_kspace.length)
+            plt.subplot(411)
+            plt.plot(t_kspace*1e3,pulse_kspace.Gz*1e4)
+            plt.title('Kspace-Gz')
+            plt.xlabel('Time (ms)')
+            plt.ylabel('Amplitude (uT/cm)')
+            plt.subplot(412)
+            plt.plot(t_kspace*1e3,pulse_kspace.Gy*1e5)
+            plt.title('Kspace-Gy')
+            plt.xlabel('Time (ms)')
+            plt.ylabel('Amplitude (uT/mm)')
+            plt.subplot(413)
+            plt.plot(t_kspace*1e3,pulse_kspace.Gx*1e5)
+            plt.title('Kspace-Gx')
+            plt.xlabel('Time (ms)')
+            plt.ylabel('Amplitude (uT/mm)')
+            plt.subplot(414)
+            plt.plot(t_kspace*1e3,pulse_kspace.readout,'o')
+            plt.title('Kspace-Read ADC?')
+            plt.ylabel('T/F')
+            plt.xlabel('Time (ms)')
     plt.tight_layout()
     plt.show()
