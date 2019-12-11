@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 grid_radius = 5
-fig_params = 'T1-100ms_T2-10ms_TE-4ms_TR-100ms_x-0.0_y-minus-0.5'
+fig_params = 'new-delta-t'
 see_sequence = False
 run_sim = True
 plot_sim_results = True
@@ -27,6 +27,7 @@ em_velocities = np.zeros([num_ems,3],dtype=float)
 Gz_amplitude = 10.0e-3
 slice_width = 5e-2
 delta_t = 1e-6
+em_delta_t = 1e-7
 xlim = 1e-2
 ylim = xlim
 fe_sample_radius = grid_radius
@@ -53,7 +54,7 @@ if run_sim:
     def T1_map(position): return T1_max
     def T2_map(position): return T2_max
     print('beginning sim with ' + str(num_ems) + ' ems')
-    sim = Sim(em_magnetizations,em_positions,em_velocities,em_gyromagnetic_ratio,em_shielding_constants,em_equilibrium_magnetization,T1_map,T2_map,main_field,pulse_sequence)
+    sim = Sim(em_magnetizations,em_positions,em_velocities,em_gyromagnetic_ratio,em_shielding_constants,em_equilibrium_magnetization,em_delta_t,T1_map,T2_map,main_field,pulse_sequence)
     ems,mrs = sim.run_sim()
 ##    # Look at MR signals
 ##    plt.figure()

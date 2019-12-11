@@ -15,6 +15,7 @@
 \item I ran the 2DFT simulation + reconstruction using single ems placed at different locations to look at the point-spread function.
 \item I rewrote some pulse sequence functions to incorporate a user-specified TR and TE and ran the 2DFT simulation + reconstruction using the parameters Chuck suggested.
 \item I looked at the effect on the total memory usage of increasing the number of ems and the pulse sequence length.
+\item I modified the code so the time step between samples of the pulse sequence (rotations of the ems's magnetizations) is different from the time step for the ems's motion, metabolic conversion, etc.
 \end{itemize}
 \end{frame}
 
@@ -111,15 +112,15 @@
 \begin{frame}{Liam's Macbook}
 \begin{center}
 \includegraphics[height=0.8\textheight]{mem_num_ems}
-1.12 kB per em.
+1.12 kB per em Macbook, 1.27 kB per em Supershop
 \end{center}
 \end{frame}
 
-\begin{frame}{Supershop}
-\begin{center}
-\includegraphics[height=0.8\textheight]{mem_num_ems}
-1.12 kB per em.
-\end{center}
+\begin{frame}{Comments}
+\begin{itemize}
+\item The memory usage per em is closer between the Macbook and Supershop as compared to before (0.6 to 1.2 kB per em), but still not identical. I do not know why. I checked that my Macbook is 64 bit.
+\item Since changing the length of the pulse sequence only changes the memory usage of the pulse sequence object, I think we can infer that Python is pointing to a single instance of the pulse sequence and is not creating copies for each em.
+\end{itemize}
 \end{frame}
 
 \end{document}

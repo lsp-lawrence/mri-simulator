@@ -5,7 +5,7 @@ import numpy as np
 class Sim:
     """The main MR simulation object"""
 
-    def __init__(self,em_magnetizations,em_positions,em_velocities,em_gyromagnetic_ratio,em_shielding_constants,em_equilibrium_magnetization,T1_map,T2_map,main_field,pulse_sequence):
+    def __init__(self,em_magnetizations,em_positions,em_velocities,em_gyromagnetic_ratio,em_shielding_constants,em_equilibrium_magnetization,em_delta_t,T1_map,T2_map,main_field,pulse_sequence):
         """Initializes the MR simulation
         Params:
             em_magnetizations: (num_ems*3 numpy array of float) the initial magnetizations of the ems
@@ -14,6 +14,7 @@ class Sim:
             em_gyromagnetic_ratio: (float) the gyromagnetic ratio of the ems
             em_shiedling_constants: (1D numpy array of nonnegative floats) the shielding constants of the ems
             em_equilibrium_magnetization: (positive float) the equilibrium magnetization of the ems
+            em_delta_t: (positive float) the time step the ems use for diffusion, metabolic conversion, etc.
             T1_map: (function) mapping from position to T1 value
             T2_map: (function) mapping from position to T2 value
             main_field: (positive float) the main field strength
@@ -34,6 +35,8 @@ class Sim:
             raise TypeError("em_shielding_constants must be a 1D numpy array of positive floats")
         if (not isinstance(em_equilibrium_magnetization,float)) or (em_equilibrium_magnetization <= 0):
             raise TypeError("em_equilibrium_magnetization must be a positive float")
+        if (not isinstance(em_delta_t,float) and em_delta_t > 0):
+            raise TypeError("em_delta_t must be a positive float")
         if (not isinstance(main_field,float)) or (main_field <= 0):
             raise TypeError("main_field must be a positive float")
         if (not isinstance(pulse_sequence,list)) or (not all([isinstance(item,Pulse) for item in pulse_sequence])):
@@ -41,6 +44,7 @@ class Sim:
         # Main
         self.gamma = em_gyromagnetic_ratio
         self.num_ems = em_positions.shape[0]
+        self.em_delta_t = em_delta_t
         self.T1_map = T1_map
         self.T2_map = T2_map
         self.B0 = main_field
@@ -140,7 +144,7 @@ class Sim:
                 for em in self.ems:
                     old_r = em.r
                     motion_type = 'inertial'
-                    em.move(motion_type,pulse.delta_t)
+                    em.move(motion_type,pulse.delta_t,self.em_delta_t)
                     r_avg = (old_r+em.r)/2.0
                     T1 = self._find_T1(r_avg)
                     T2 = self._find_T2(r_avg)
@@ -152,7 +156,7 @@ class Sim:
                 for em in self.ems:
                     old_r = em.r
                     motion_type = 'inertial'
-                    em.move(motion_type,pulse.delta_t)
+                    em.move(motion_type,pulse.delta_t,self.em_delta_t)
                     r_avg = (old_r+em.r)/2.0
                     Bz = self._find_Bz(r_avg,0.0,0.0,pulse.Gz[step_no])
                     em.update_flip_quaternion(pulse.B1x[step_no],pulse.B1y[step_no],Bz,pulse.omega_rf,pulse.delta_t)

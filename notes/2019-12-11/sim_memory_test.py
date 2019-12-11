@@ -18,7 +18,7 @@ def my_func():
 
     # Place ems
     r0 = np.array([[0.0,-0.5,0.0]])*1e-2
-    em_positions = np.tile(r0,(200,1))
+    em_positions = np.tile(r0,(8000,1))
     num_ems = em_positions.shape[0]
     em_gyromagnetic_ratio = 2.675e8
     main_field = 3.0
@@ -46,20 +46,20 @@ def my_func():
     repetition_time = 100e-3
     gyromagnetic_ratio = em_gyromagnetic_ratio
     # Create pulse sequence
-    pulse_length = int(4e6)
-    Gx = np.zeros(pulse_length)
-    Gy = np.zeros(pulse_length)
-    Gz = np.zeros(pulse_length)
-    readout = np.zeros(pulse_length,dtype=bool)
-    delta_t = 1e-6
-    pulse_sequence = [Pulse(mode='free',Gx=Gx,Gy=Gy,Gz=Gz,readout=readout,delta_t=delta_t)]
-    #pulse_sequence = generate_2DFT_sequence(main_field,Gz_amplitude,slice_width,gyromagnetic_ratio,fe_sample_radius,pe_sample_radius,kx_max,ky_max,kmove_time,kread_time,repetition_time,delta_t,read_all)
+##    pulse_length = int(4e6)
+##    Gx = np.zeros(pulse_length)
+##    Gy = np.zeros(pulse_length)
+##    Gz = np.zeros(pulse_length)
+##    readout = np.zeros(pulse_length,dtype=bool)
+##    delta_t = 1e-6
+##    pulse_sequence = [Pulse(mode='free',Gx=Gx,Gy=Gy,Gz=Gz,readout=readout,delta_t=delta_t)]
+    pulse_sequence = generate_2DFT_sequence(main_field,Gz_amplitude,slice_width,gyromagnetic_ratio,fe_sample_radius,pe_sample_radius,kx_max,ky_max,kmove_time,kread_time,repetition_time,delta_t,read_all)
     # Initialize simulation
     def T1_map(position): return T1_max
     def T2_map(position): return T2_max
     print('beginning sim with ' + str(num_ems) + ' ems')
     sim = Sim(em_magnetizations,em_positions,em_velocities,em_gyromagnetic_ratio,em_shielding_constants,em_equilibrium_magnetization,T1_map,T2_map,main_field,pulse_sequence)
-    ems,mr = sim.run_sim()
+    #ems,mr = sim.run_sim()
 
 
 if __name__=='__main__':

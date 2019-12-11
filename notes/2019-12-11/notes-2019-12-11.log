@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.4.10)  11 DEC 2019 11:18
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.4.10)  11 DEC 2019 12:20
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1039,7 +1039,7 @@ thkerncmss.
 <reconstruction_x-0.5_y-0.0.pdf, id=137, 578.16pt x 289.08pt>
 File: reconstruction_x-0.5_y-0.0.pdf Graphic file (type pdf)
 <use reconstruction_x-0.5_y-0.0.pdf>
-Package pdftex.def Info: reconstruction_x-0.5_y-0.0.pdf  used on input line 35.
+Package pdftex.def Info: reconstruction_x-0.5_y-0.0.pdf  used on input line 36.
 
 (pdftex.def)             Requested size: 307.28987pt x 153.64394pt.
  [5
@@ -1049,7 +1049,7 @@ Package pdftex.def Info: reconstruction_x-0.5_y-0.0.pdf  used on input line 35.
 File: reconstruction_x-minus-0.5_y-0.0.pdf Graphic file (type pdf)
 <use reconstruction_x-minus-0.5_y-0.0.pdf>
 Package pdftex.def Info: reconstruction_x-minus-0.5_y-0.0.pdf  used on input li
-ne 41.
+ne 42.
 (pdftex.def)             Requested size: 307.28987pt x 153.64394pt.
  [6
 
@@ -1057,7 +1057,7 @@ ne 41.
 <reconstruction_x-0.0_y-0.5.pdf, id=257, 578.16pt x 289.08pt>
 File: reconstruction_x-0.0_y-0.5.pdf Graphic file (type pdf)
 <use reconstruction_x-0.0_y-0.5.pdf>
-Package pdftex.def Info: reconstruction_x-0.0_y-0.5.pdf  used on input line 47.
+Package pdftex.def Info: reconstruction_x-0.0_y-0.5.pdf  used on input line 48.
 
 (pdftex.def)             Requested size: 307.28987pt x 153.64394pt.
  [7
@@ -1067,7 +1067,7 @@ Package pdftex.def Info: reconstruction_x-0.0_y-0.5.pdf  used on input line 47.
 File: reconstruction_x-0.0_y-minus-0.5.pdf Graphic file (type pdf)
 <use reconstruction_x-0.0_y-minus-0.5.pdf>
 Package pdftex.def Info: reconstruction_x-0.0_y-minus-0.5.pdf  used on input li
-ne 53.
+ne 54.
 (pdftex.def)             Requested size: 307.28987pt x 153.64394pt.
  [8
 
@@ -1084,7 +1084,7 @@ File: reconstruction_T1-100ms_T2-10ms_TE-4ms_TR-100ms_x-0.5_y-0.0.pdf Graphic f
 ile (type pdf)
 <use reconstruction_T1-100ms_T2-10ms_TE-4ms_TR-100ms_x-0.5_y-0.0.pdf>
 Package pdftex.def Info: reconstruction_T1-100ms_T2-10ms_TE-4ms_TR-100ms_x-0.5_
-y-0.0.pdf  used on input line 74.
+y-0.0.pdf  used on input line 75.
 (pdftex.def)             Requested size: 307.28987pt x 153.64394pt.
  [12
 
@@ -1095,7 +1095,7 @@ File: reconstruction_T1-100ms_T2-10ms_TE-4ms_TR-100ms_x-minus-0.5_y-0.0.pdf Gra
 phic file (type pdf)
 <use reconstruction_T1-100ms_T2-10ms_TE-4ms_TR-100ms_x-minus-0.5_y-0.0.pdf>
 Package pdftex.def Info: reconstruction_T1-100ms_T2-10ms_TE-4ms_TR-100ms_x-minu
-s-0.5_y-0.0.pdf  used on input line 80.
+s-0.5_y-0.0.pdf  used on input line 81.
 (pdftex.def)             Requested size: 307.28987pt x 153.64394pt.
  [13
 
@@ -1106,7 +1106,7 @@ File: reconstruction_T1-100ms_T2-10ms_TE-4ms_TR-100ms_x-0.0_y-0.5.pdf Graphic f
 ile (type pdf)
 <use reconstruction_T1-100ms_T2-10ms_TE-4ms_TR-100ms_x-0.0_y-0.5.pdf>
 Package pdftex.def Info: reconstruction_T1-100ms_T2-10ms_TE-4ms_TR-100ms_x-0.0_
-y-0.5.pdf  used on input line 86.
+y-0.5.pdf  used on input line 87.
 (pdftex.def)             Requested size: 307.28987pt x 153.64394pt.
  [14
 
@@ -1117,7 +1117,7 @@ File: reconstruction_T1-100ms_T2-10ms_TE-4ms_TR-100ms_x-0.0_y-minus-0.5.pdf Gra
 phic file (type pdf)
 <use reconstruction_T1-100ms_T2-10ms_TE-4ms_TR-100ms_x-0.0_y-minus-0.5.pdf>
 Package pdftex.def Info: reconstruction_T1-100ms_T2-10ms_TE-4ms_TR-100ms_x-0.0_
-y-minus-0.5.pdf  used on input line 92.
+y-minus-0.5.pdf  used on input line 93.
 (pdftex.def)             Requested size: 307.28987pt x 153.64394pt.
  [15
 
@@ -1131,16 +1131,11 @@ y-minus-0.5.pdf  used on input line 92.
 <mem_num_ems.pdf, id=776, 462.52798pt x 346.89601pt>
 File: mem_num_ems.pdf Graphic file (type pdf)
 <use mem_num_ems.pdf>
-Package pdftex.def Info: mem_num_ems.pdf  used on input line 116.
+Package pdftex.def Info: mem_num_ems.pdf  used on input line 117.
 (pdftex.def)             Requested size: 287.08902pt x 215.31812pt.
  [19
 
- <./mem_num_ems.pdf>]
-File: mem_num_ems.pdf Graphic file (type pdf)
-<use mem_num_ems.pdf>
-Package pdftex.def Info: mem_num_ems.pdf  used on input line 123.
-(pdftex.def)             Requested size: 287.08902pt x 215.31812pt.
- [20
+ <./mem_num_ems.pdf>] [20
 
 ]
 \tf@nav=\write6
@@ -1152,19 +1147,19 @@ Package pdftex.def Info: mem_num_ems.pdf  used on input line 123.
 \tf@snm=\write8
 \openout8 = `notes-2019-12-11.snm'.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 125.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 125.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 126.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 126.
 
 (./notes-2019-12-11.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 125.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 125.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 126.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 126.
 Package rerunfilecheck Info: File `notes-2019-12-11.out' has not changed.
 (rerunfilecheck)             Checksum: 3593392B193ABF013ABE47FFF3F517A4;181.
  ) 
 Here is how much of TeX's memory you used:
  21109 strings out of 492623
  392128 string characters out of 6129552
- 649260 words of memory out of 5000000
+ 650260 words of memory out of 5000000
  24502 multiletter control sequences out of 15000+600000
  11114 words of font info for 42 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -1177,9 +1172,9 @@ sr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi10.pfb></u
 sr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi8.pfb></us
 r/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr
 /local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb>
-Output written on notes-2019-12-11.pdf (20 pages, 197535 bytes).
+Output written on notes-2019-12-11.pdf (20 pages, 200214 bytes).
 PDF statistics:
- 900 PDF objects out of 1000 (max. 8388607)
+ 905 PDF objects out of 1000 (max. 8388607)
  605 compressed objects within 7 object streams
  44 named destinations out of 1000 (max. 500000)
  112 words of extra memory for PDF output out of 10000 (max. 10000000)
