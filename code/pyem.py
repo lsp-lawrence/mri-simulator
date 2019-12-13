@@ -4,12 +4,11 @@ from pyquaternion import Quaternion
 class Em:
     """The atom of the MR simulation"""
 
-    def __init__(self,magnetization,position,velocity,gyromagnetic_ratio,shielding_constant,equilibrium_magnetization):
+    def __init__(self,magnetization,position,gyromagnetic_ratio,shielding_constant,equilibrium_magnetization):
         """Initializes an em
         Params:
             magnetization: (numpy 3-vector) initial magnetization
             position: (numpy 3-vector) intial position
-            velocity: (numpy 3-vector) initial velocity
             gyromagnetic_ratio: (float) the gyromagnetic ratio of the nucleus
             shielding_constant: (nonnegative float) shiedling constant from chemical environment
             equilibrium_magnetization: (positive float) longitudinal magnetization in thermal equilibrium
@@ -19,8 +18,6 @@ class Em:
             raise TypeError("magnetization must be a numpy 3-vector")
         if (position.dtype != np.float64) or (position.shape != (3,)):
             raise TypeError("position must be a numpy 3-vector")
-        if (velocity.dtype != np.float64) or (velocity.shape != (3,)):
-            raise TypeError("velocity must be a numpy 3-vector")
         if not isinstance(gyromagnetic_ratio,float):
             raise TypeError("gyromagnetic_ratio must be a float")
         if not(isinstance(shielding_constant,float) and shielding_constant >= 0.0):
@@ -30,7 +27,6 @@ class Em:
         # Main
         self.mu = magnetization
         self.r = position
-        self.v = velocity # A velocity component of None indicates exactly zero velocity in that direction
         self.gamma = gyromagnetic_ratio
         self.sigma = shielding_constant
         self.mu0 = equilibrium_magnetization
@@ -43,21 +39,20 @@ class Em:
         """
         self.sigma = new_shielding_constant
 
-    def move(self,motion_type,delta_t):
-        """Updates position according to the type of motion
+    def diffuse(self,diffusion_coefficients,delta_t):
+        """Updates position according to diffusion process
         Params:
-            motion_type: (string) type of motion
-            delta_t: (positive float) time step duration
+            diffusion_coefficients: (numpy 3-vector of nonnegative floats) diffusion coefficients at position
+            delta_t: (positive float) time step
         """
         # Check params
-        valid_motion_types = ['inertial']
-        if (not isinstance(motion_type,str)) or (motion_type not in valid_motion_types):
-            raise TypeError("motion_type must be a string and one of: " + ','.join(valid_motion_types))
-        if (not isinstance(delta_t,float)) or (delta_t <= 0):
+        if not(diffusion_coefficients.shape == (3,) and diffusion_coefficients.dtype == np.float64 and all([item>=0.0 for item in diffusion_coefficients])):
+            raise TypeError("diffusion_coefficients must be a numpy 3-vector of positive floats")
+        if not(isinstance(delta_t,float) and delta_t > 0.0):
             raise TypeError("delta_t must be a positive float")
-        # Main
-        if motion_type == 'inertial':
-            self.r = self.r + self.v*delta_t
+        for ax_no in range(3):
+            if(diffusion_coefficients[ax_no]>0.0):
+                self.r[ax_no] = self.r[ax_no] + np.random.normal(0.0,np.sqrt(2*diffusion_coefficients[ax_no]*delta_t))
 
     def precess_and_relax(self,T1,T2,Bz,delta_t):
         """Updates magnetization assuming free precession

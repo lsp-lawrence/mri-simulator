@@ -1,1 +1,5 @@
 \beamer@sectionintoc {1}{Distortion from metabolic image}{2}{0}{1}
+\beamer@sectionintoc {2}{Execution time of 2DFT sequence on Supershop}{6}{0}{2}
+\beamer@sectionintoc {3}{Em diffusion}{9}{0}{3}
+\beamer@sectionintoc {4}{DWI pulse sequence}{15}{0}{4}
+\beamer@sectionintoc {5}{DWI sequence simulation}{19}{0}{5}

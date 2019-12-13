@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.4.10)  13 DEC 2019 10:51
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.4.10)  13 DEC 2019 15:50
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1008,21 +1008,21 @@ Package caption Info: End \AtBeginDocument code.
 \c@lstlisting=\count271
 
 (./notes_2019-12-13.nav)
-LaTeX Font Info:    Try loading font information for U+msa on input line 10.
+LaTeX Font Info:    Try loading font information for U+msa on input line 14.
 
 (/usr/local/texlive/2019/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 10.
+LaTeX Font Info:    Try loading font information for U+msb on input line 14.
 
 (/usr/local/texlive/2019/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-LaTeX Font Info:    Try loading font information for U+bbold on input line 10.
+LaTeX Font Info:    Try loading font information for U+bbold on input line 14.
 
 (/usr/local/texlive/2019/texmf-dist/tex/latex/bbold/Ubbold.fd)
 LaTeX Font Info:    Try loading font information for OT1+mathkerncmss on input 
-line 10.
+line 14.
 
 (/usr/local/texlive/2019/texmf-dist/tex/latex/sansmathaccent/ot1mathkerncmss.fd
 File: ot1mathkerncmss.fd 2013/03/27 Fontinst v1.933 font definitions for OT1/ma
@@ -1035,15 +1035,69 @@ thkerncmss.
 ] [3
 
 ]
-<reconstruction_metabolism-on-20percent.pdf, id=103, 578.16pt x 289.08pt>
+<reconstruction_metabolism-on-20percent.pdf, id=121, 578.16pt x 289.08pt>
 File: reconstruction_metabolism-on-20percent.pdf Graphic file (type pdf)
 <use reconstruction_metabolism-on-20percent.pdf>
 Package pdftex.def Info: reconstruction_metabolism-on-20percent.pdf  used on in
-put line 27.
+put line 31.
 (pdftex.def)             Requested size: 307.28987pt x 153.64394pt.
  [4
 
  <./reconstruction_metabolism-on-20percent.pdf>] [5
+
+] [6
+
+] [7
+
+] [8
+
+]
+[9
+
+] [10
+
+] [11
+
+] [12
+
+]
+<diffusion_trajectory.pdf, id=393, 462.52798pt x 346.89601pt>
+File: diffusion_trajectory.pdf Graphic file (type pdf)
+<use diffusion_trajectory.pdf>
+Package pdftex.def Info: diffusion_trajectory.pdf  used on input line 95.
+(pdftex.def)             Requested size: 287.08902pt x 215.31812pt.
+ [13
+
+ <./diffusion_trajectory.pdf>] [14
+
+] [15
+
+] [16
+
+]
+<dwi_pulse_sequence.png, id=521, 289.08pt x 505.89pt>
+File: dwi_pulse_sequence.png Graphic file (type png)
+<use dwi_pulse_sequence.png>
+Package pdftex.def Info: dwi_pulse_sequence.png  used on input line 120.
+(pdftex.def)             Requested size: 123.04042pt x 215.31812pt.
+ [17
+
+ <./dwi_pulse_sequence.png>] [18
+
+] [19
+
+] [20
+
+]
+<reconstruction_diffusion.pdf, id=627, 578.16pt x 289.08pt>
+File: reconstruction_diffusion.pdf Graphic file (type pdf)
+<use reconstruction_diffusion.pdf>
+Package pdftex.def Info: reconstruction_diffusion.pdf  used on input line 141.
+(pdftex.def)             Requested size: 307.28987pt x 153.64394pt.
+ [21
+
+ <./reconstruction_diffusion.pdf>]
+[22
 
 ]
 \tf@nav=\write6
@@ -1055,35 +1109,38 @@ put line 27.
 \tf@snm=\write8
 \openout8 = `notes_2019-12-13.snm'.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 35.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 35.
-
-(./notes_2019-12-13.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 35.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 35.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 150.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 150.
+ (./notes_2019-12-13.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 150.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 150.
 Package rerunfilecheck Info: File `notes_2019-12-13.out' has not changed.
-(rerunfilecheck)             Checksum: 51478BC42B1F2D6CB84BC6C46F4E80F1;66.
+(rerunfilecheck)             Checksum: 38BCA030B2557B5372EFDF37F836DC0D;303.
  ) 
 Here is how much of TeX's memory you used:
- 20968 strings out of 492623
- 388435 string characters out of 6129552
- 675485 words of memory out of 5000000
- 24400 multiletter control sequences out of 15000+600000
+ 21077 strings out of 492623
+ 389830 string characters out of 6129552
+ 676485 words of memory out of 5000000
+ 24467 multiletter control sequences out of 15000+600000
  11546 words of font info for 43 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  70i,14n,103p,1052b,563s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb
-></usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><
-/usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></
-usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmss12.pfb></u
-sr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi10.pfb></u
-sr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></us
-r/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb>
-
-Output written on notes_2019-12-13.pdf (5 pages, 81875 bytes).
+></usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb>
+</usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></
+usr/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr
+/local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/
+local/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmss12.pfb></usr/l
+ocal/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/loc
+al/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi10.pfb></usr/loc
+al/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi8.pfb></usr/loca
+l/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local
+/texlive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/t
+exlive/2019/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb>
+Output written on notes_2019-12-13.pdf (22 pages, 332836 bytes).
 PDF statistics:
- 216 PDF objects out of 1000 (max. 8388607)
- 165 compressed objects within 2 object streams
- 12 named destinations out of 1000 (max. 500000)
- 56 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 769 PDF objects out of 1000 (max. 8388607)
+ 637 compressed objects within 7 object streams
+ 50 named destinations out of 1000 (max. 500000)
+ 103 words of extra memory for PDF output out of 10000 (max. 10000000)
 

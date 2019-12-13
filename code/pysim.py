@@ -5,12 +5,11 @@ import numpy as np
 class Sim:
     """The main MR simulation object"""
 
-    def __init__(self,em_magnetizations,em_positions,em_velocities,em_gyromagnetic_ratio,em_shielding_constants,em_equilibrium_magnetization,em_delta_t,conversion_dict,T1_map,T2_map,main_field,pulse_sequence):
+    def __init__(self,em_magnetizations,em_positions,em_gyromagnetic_ratio,em_shielding_constants,em_equilibrium_magnetization,em_delta_t,T1_map,T2_map,main_field,pulse_sequence,D_map=None,conversion_dict={}):
         """Initializes the MR simulation
         Params:
             em_magnetizations: (num_ems*3 numpy array of float) the initial magnetizations of the ems
             em_positions: (num_ems*3 numpy array of floats) the initial positions of the ems
-            em_velocities: (num_ems*3 numpy array of floats) the initial velocities of the ems
             em_gyromagnetic_ratio: (float) the gyromagnetic ratio of the ems
             em_shiedling_constants: (1D numpy array of nonnegative floats) the shielding constants of the ems
             em_equilibrium_magnetization: (positive float) the equilibrium magnetization of the ems
@@ -18,6 +17,7 @@ class Sim:
             conversion_dict: (dictionary) dictionary of metabolic conversion parameters
             T1_map: (function) mapping from position to T1 value
             T2_map: (function) mapping from position to T2 value
+            D_map: (function) mapping from position to diffusion coefficient; if None then no diffusion occurs
             main_field: (positive float) the main field strength
             pulse_sequence: (list of Pulse objects) the pulse sequence
         """
@@ -26,10 +26,8 @@ class Sim:
             raise TypeError("em_magnetizations must be a num_ems*3 numpy array of floats")
         if (em_positions.dtype != np.float64) or (em_positions.ndim != 2) or (em_positions.shape[1] != 3):
             raise TypeError("em_positions must be a num_ems*3 numpy array of floats")
-        if (em_velocities.dtype != np.float64) or (em_velocities.ndim != 2) or (em_velocities.shape[1] != 3):
-            raise TypeError("em velocities must be a num_ems*3 numpy array of float")
-        if not (em_magnetizations.shape[0] == em_positions.shape[0] == em_velocities.shape[0]):
-            raise ValueError("em_magnetizations, em_positions, em_velocities must have the same number of rows (num_ems)")
+        if not (em_magnetizations.shape[0] == em_positions.shape[0]):
+            raise ValueError("em_magnetizations and em_positions must have the same number of rows (num_ems)")
         if not isinstance(em_gyromagnetic_ratio,float):
             raise TypeError("em_gyromagnetic_ratio must be a float")
         if not (em_shielding_constants.dtype == np.float64 and em_shielding_constants.ndim == 1 and all([item >= 0.0 for item in em_shielding_constants])):
@@ -44,11 +42,7 @@ class Sim:
         if not(all([np.mod(pulse_sequence[pulse_no].delta_t,em_delta_t)<1e-9*T_0 for pulse_no in range(len(pulse_sequence))])):
             raise ValueError('em_delta_t must be a divisor of all time step durations in the pulse sequence')
         if (not isinstance(conversion_dict,dict)):
-            raise TypeError('conversion_dict must be a dictionary')
-        conversion_dict_fields = ['pyr_2_lac_rate','lac_2_pyr_rate','lac_sigma','pyr_sigma']
-        for field in conversion_dict.keys():
-            if not(field in conversion_dict_fields):
-                raise ValueError('conversion_dict is missing field: ' + field) 
+            raise TypeError('conversion_dict must be a dictionary') 
         if (not isinstance(main_field,float)) or (main_field <= 0):
             raise TypeError("main_field must be a positive float")
         if (not isinstance(pulse_sequence,list)) or (not all([isinstance(item,Pulse) for item in pulse_sequence])):
@@ -59,20 +53,23 @@ class Sim:
         self.em_delta_t = em_delta_t
         self.T1_map = T1_map
         self.T2_map = T2_map
+        self.diffusion_on = D_map != None
+        self.D_map = D_map
         self.B0 = main_field
         self.pulse_sequence = pulse_sequence
-        self.metabolism = conversion_dict
-        # Convert metabolism rates for time step of simulation
-        self.metabolism['pyr_2_lac_rate'] = self.metabolism['pyr_2_lac_rate']*em_delta_t
-        self.metabolism['lac_2_pyr_rate'] = self.metabolism['lac_2_pyr_rate']*em_delta_t
+        self.metabolism_on = len(conversion_dict)>0
+        if self.metabolism_on:
+            self.metabolism = conversion_dict
+            # Convert metabolism rates for time step of simulation
+            self.metabolism['pyr_2_lac_rate'] = self.metabolism['pyr_2_lac_rate']*em_delta_t
+            self.metabolism['lac_2_pyr_rate'] = self.metabolism['lac_2_pyr_rate']*em_delta_t
         # Instantiate ems
         self.ems = []
         for em_no in range(self.num_ems):
             magnetization = em_magnetizations[em_no,:]
             position = em_positions[em_no,:]
-            velocity = em_velocities[em_no,:]
             shielding_constant = em_shielding_constants[em_no]
-            self.ems.append(Em(magnetization,position,velocity,em_gyromagnetic_ratio,shielding_constant,em_equilibrium_magnetization))
+            self.ems.append(Em(magnetization,position,em_gyromagnetic_ratio,shielding_constant,em_equilibrium_magnetization))
 
     def run_sim(self):
         """Runs the simulation
@@ -117,6 +114,21 @@ class Sim:
             raise TypeError("position must be a numpy 3-vector of floats")
         # return T2
         return self.T2_map(position)
+
+    def _find_D(self,position):
+        """Returns the diffusion coefficient at given position
+        Params:
+            position: (numpy 3-vector of floats) position
+        Returns:
+            diffusion_coefficients: diffusion coefficients at position
+        """
+        if self.diffusion_on:
+            # Check params
+            if (position.dtype != np.float64) or (position.shape != (3,)):
+                raise TypeError("position must be a numpy 3-vector of floats")
+            # Return D
+            diffusion_coefficients = self.D_map(position)
+            return diffusion_coefficients
 
     def _find_Bz(self,position,Gx,Gy,Gz):
         """Returns the longitudinal field at a given position with applied gradients
@@ -172,14 +184,15 @@ class Sim:
                     # Simulate physics of ems
                     for em in self.ems:
                         # Motion
-                        old_r = em.r
-                        motion_type = 'inertial'
-                        em.move(motion_type,self.em_delta_t)
+                        r_avg = em.r
+                        if self.diffusion_on:
+                            em.diffuse(self._find_D(em.r),self.em_delta_t)
+                            r_avg = (r_avg+em.r)/2.0
                         # Metabolic conversion
-                        if (np.random.random() < self.metabolism['pyr_2_lac_rate']): em.set_shielding_constant(self.metabolism['lac_sigma'])
-                        elif (np.random.random() < self.metabolism['lac_2_pyr_rate']): em.set_shielding_constant(self.metabolism['pyr_sigma'])
+                        if self.metabolism_on:
+                            if (np.random.random() < self.metabolism['pyr_2_lac_rate']): em.set_shielding_constant(self.metabolism['lac_sigma'])
+                            elif (np.random.random() < self.metabolism['lac_2_pyr_rate']): em.set_shielding_constant(self.metabolism['pyr_sigma'])
                         # Precession about main field
-                        r_avg = (old_r+em.r)/2.0
                         T1 = self._find_T1(r_avg)
                         T2 = self._find_T2(r_avg)
                         Bz = self._find_Bz(r_avg,Gx,Gy,Gz)
@@ -196,14 +209,15 @@ class Sim:
                     # Simulate physics of ems
                     for em in self.ems:
                         # Motion
-                        old_r = em.r
-                        motion_type = 'inertial'
-                        em.move(motion_type,self.em_delta_t)
+                        r_avg = em.r
+                        if self.diffusion_on:
+                            em.diffuse(self._find_D(em.r),self.em_delta_t)
+                            r_avg = (r_avg+em.r)/2.0
                         # Metabolic conversion
-                        if (np.random.random() < self.metabolism['pyr_2_lac_rate']): em.set_shielding_constant(self.metabolism['lac_sigma'])
-                        elif (np.random.random() < self.metabolism['lac_2_pyr_rate']): em.set_shielding_constant(self.metabolism['pyr_sigma'])
+                        if self.metabolism_on:
+                            if (np.random.random() < self.metabolism['pyr_2_lac_rate']): em.set_shielding_constant(self.metabolism['lac_sigma'])
+                            elif (np.random.random() < self.metabolism['lac_2_pyr_rate']): em.set_shielding_constant(self.metabolism['pyr_sigma'])
                         # Precession about main field + RF field
-                        r_avg = (old_r+em.r)/2.0
                         Bz = self._find_Bz(r_avg,0.0,0.0,Gz)
                         em.update_flip_quaternion(pulse.B1x[pulse_sample_no],pulse.B1y[pulse_sample_no],Bz,pulse.omega_rf,self.em_delta_t)
             # Apply flip
