@@ -1,1 +1,4 @@
 \beamer@sectionintoc {1}{Simulating ems in parallel}{2}{0}{1}
+\beamer@sectionintoc {2}{Execution time of 2DFT simulation}{7}{0}{2}
+\beamer@sectionintoc {3}{Execution time of random number generation with Numpy}{9}{0}{3}
+\beamer@sectionintoc {4}{Metabolic conversion}{11}{0}{4}

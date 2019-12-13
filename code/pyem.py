@@ -36,28 +36,28 @@ class Em:
         self.mu0 = equilibrium_magnetization
         self.flip_quaternion = Quaternion(1) # Rotation quaterion for flip from excitation
 
-    def move(self,motion_type,duration,delta_t):
+    def set_shielding_constant(self,new_shielding_constant):
+        """Updates shielding constant
+        Params:
+            new_shielding_constant: (positive float) new shielding constant
+        """
+        self.sigma = new_shielding_constant
+
+    def move(self,motion_type,delta_t):
         """Updates position according to the type of motion
         Params:
             motion_type: (string) type of motion
-            duration: (positive float) duration of motion
-            delta_t: (positive float) time step
-        Note:
-            duration must be greater than or equal to delta_t
+            delta_t: (positive float) time step duration
         """
         # Check params
         valid_motion_types = ['inertial']
         if (not isinstance(motion_type,str)) or (motion_type not in valid_motion_types):
             raise TypeError("motion_type must be a string and one of: " + ','.join(valid_motion_types))
-        if (not isinstance(duration,float) and duration>0):
-            raise TypeError("duration must be a positive float")
         if (not isinstance(delta_t,float)) or (delta_t <= 0):
             raise TypeError("delta_t must be a positive float")
-        if not(duration>=delta_t):
-            raise ValueError("duration must be greater than or equal to delta_t")
         # Main
         if motion_type == 'inertial':
-            self.r = self.r + self.v*duration
+            self.r = self.r + self.v*delta_t
 
     def precess_and_relax(self,T1,T2,Bz,delta_t):
         """Updates magnetization assuming free precession

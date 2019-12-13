@@ -5,7 +5,7 @@ import numpy as np
 class Sim:
     """The main MR simulation object"""
 
-    def __init__(self,em_magnetizations,em_positions,em_velocities,em_gyromagnetic_ratio,em_shielding_constants,em_equilibrium_magnetization,em_delta_t,T1_map,T2_map,main_field,pulse_sequence):
+    def __init__(self,em_magnetizations,em_positions,em_velocities,em_gyromagnetic_ratio,em_shielding_constants,em_equilibrium_magnetization,em_delta_t,conversion_dict,T1_map,T2_map,main_field,pulse_sequence):
         """Initializes the MR simulation
         Params:
             em_magnetizations: (num_ems*3 numpy array of float) the initial magnetizations of the ems
@@ -15,6 +15,7 @@ class Sim:
             em_shiedling_constants: (1D numpy array of nonnegative floats) the shielding constants of the ems
             em_equilibrium_magnetization: (positive float) the equilibrium magnetization of the ems
             em_delta_t: (positive float) the time step the ems use for diffusion, metabolic conversion, etc.
+            conversion_dict: (dictionary) dictionary of metabolic conversion parameters
             T1_map: (function) mapping from position to T1 value
             T2_map: (function) mapping from position to T2 value
             main_field: (positive float) the main field strength
@@ -37,11 +38,22 @@ class Sim:
             raise TypeError("em_equilibrium_magnetization must be a positive float")
         if (not isinstance(em_delta_t,float) and em_delta_t > 0):
             raise TypeError("em_delta_t must be a positive float")
+        if not(em_delta_t <= min([pulse_sequence[pulse_no].delta_t for pulse_no in range(len(pulse_sequence))])):
+            raise ValueError('em_delta_t must be less than or equal to the minimum time step of the pulse sequence')
+        T_0 = (2*np.pi)/(em_gyromagnetic_ratio*main_field)
+        if not(all([np.mod(pulse_sequence[pulse_no].delta_t,em_delta_t)<1e-9*T_0 for pulse_no in range(len(pulse_sequence))])):
+            raise ValueError('em_delta_t must be a divisor of all time step durations in the pulse sequence')
+        if (not isinstance(conversion_dict,dict)):
+            raise TypeError('conversion_dict must be a dictionary')
+        conversion_dict_fields = ['pyr_2_lac_rate','lac_2_pyr_rate','lac_sigma','pyr_sigma']
+        for field in conversion_dict.keys():
+            if not(field in conversion_dict_fields):
+                raise ValueError('conversion_dict is missing field: ' + field) 
         if (not isinstance(main_field,float)) or (main_field <= 0):
             raise TypeError("main_field must be a positive float")
         if (not isinstance(pulse_sequence,list)) or (not all([isinstance(item,Pulse) for item in pulse_sequence])):
             raise TypeError("pulse_sequence must be a list of Pulse objects")
-        # Main
+        # Copy attributes
         self.gamma = em_gyromagnetic_ratio
         self.num_ems = em_positions.shape[0]
         self.em_delta_t = em_delta_t
@@ -49,6 +61,11 @@ class Sim:
         self.T2_map = T2_map
         self.B0 = main_field
         self.pulse_sequence = pulse_sequence
+        self.metabolism = conversion_dict
+        # Convert metabolism rates for time step of simulation
+        self.metabolism['pyr_2_lac_rate'] = self.metabolism['pyr_2_lac_rate']*em_delta_t
+        self.metabolism['lac_2_pyr_rate'] = self.metabolism['lac_2_pyr_rate']*em_delta_t
+        # Instantiate ems
         self.ems = []
         for em_no in range(self.num_ems):
             magnetization = em_magnetizations[em_no,:]
@@ -134,32 +151,62 @@ class Sim:
         if not isinstance(pulse,Pulse):
             raise TypeError("pulse must be a Pulse object")
         # Main
+        time_steps_per_sample = int(pulse.delta_t/self.em_delta_t)
         if pulse.mode == 'free':
             mr_signal = np.zeros(np.sum(pulse.readout),dtype=np.complex)
             mr_signal_index = 0
-            for step_no in range(pulse.length):
-                if pulse.readout[step_no]:
+            for pulse_sample_no in range(pulse.length):
+                if pulse.readout[pulse_sample_no]:
                     mr_signal[mr_signal_index] = self._readout()
                     mr_signal_index = mr_signal_index + 1
-                for em in self.ems:
-                    old_r = em.r
-                    motion_type = 'inertial'
-                    em.move(motion_type,pulse.delta_t,self.em_delta_t)
-                    r_avg = (old_r+em.r)/2.0
-                    T1 = self._find_T1(r_avg)
-                    T2 = self._find_T2(r_avg)
-                    Bz = self._find_Bz(r_avg,pulse.Gx[step_no],pulse.Gy[step_no],pulse.Gz[step_no])
-                    em.precess_and_relax(T1,T2,Bz,pulse.delta_t)
-        elif pulse.mode == 'excite':
+                for time_step_no in range(time_steps_per_sample):
+                    # Interpolate gradients
+                    if pulse_sample_no == (pulse.length-1):
+                        Gx = pulse.Gx[pulse_sample_no]
+                        Gy = pulse.Gy[pulse_sample_no]
+                        Gz = pulse.Gz[pulse_sample_no]
+                    else:
+                        Gx = (pulse.Gx[pulse_sample_no]*(time_steps_per_sample-time_step_no) + pulse.Gx[pulse_sample_no+1]*time_step_no)/(time_steps_per_sample)
+                        Gy = (pulse.Gy[pulse_sample_no]*(time_steps_per_sample-time_step_no) + pulse.Gy[pulse_sample_no+1]*time_step_no)/(time_steps_per_sample)
+                        Gz = (pulse.Gz[pulse_sample_no]*(time_steps_per_sample-time_step_no) + pulse.Gz[pulse_sample_no+1]*time_step_no)/(time_steps_per_sample)
+                    # Simulate physics of ems
+                    for em in self.ems:
+                        # Motion
+                        old_r = em.r
+                        motion_type = 'inertial'
+                        em.move(motion_type,self.em_delta_t)
+                        # Metabolic conversion
+                        if (np.random.random() < self.metabolism['pyr_2_lac_rate']): em.set_shielding_constant(self.metabolism['lac_sigma'])
+                        elif (np.random.random() < self.metabolism['lac_2_pyr_rate']): em.set_shielding_constant(self.metabolism['pyr_sigma'])
+                        # Precession about main field
+                        r_avg = (old_r+em.r)/2.0
+                        T1 = self._find_T1(r_avg)
+                        T2 = self._find_T2(r_avg)
+                        Bz = self._find_Bz(r_avg,Gx,Gy,Gz)
+                        em.precess_and_relax(T1,T2,Bz,self.em_delta_t)
+        elif pulse.mode == 'excite': # Rotation of magnetization of each em only applied at the end of the excitation pulse, and no relaxation occurs during excitation
             mr_signal = None
-            for step_no in range(pulse.length):
-                for em in self.ems:
-                    old_r = em.r
-                    motion_type = 'inertial'
-                    em.move(motion_type,pulse.delta_t,self.em_delta_t)
-                    r_avg = (old_r+em.r)/2.0
-                    Bz = self._find_Bz(r_avg,0.0,0.0,pulse.Gz[step_no])
-                    em.update_flip_quaternion(pulse.B1x[step_no],pulse.B1y[step_no],Bz,pulse.omega_rf,pulse.delta_t)
+            for pulse_sample_no in range(pulse.length):
+                for time_step_no in range(time_steps_per_sample):
+                    # Interpolate gradients
+                    if pulse_sample_no == (pulse.length-1):
+                        Gz = pulse.Gz[pulse_sample_no]
+                    else:
+                        Gz = (pulse.Gz[pulse_sample_no]*(time_steps_per_sample-time_step_no) + pulse.Gz[pulse_sample_no+1]*time_step_no)/(time_steps_per_sample)
+                    # Simulate physics of ems
+                    for em in self.ems:
+                        # Motion
+                        old_r = em.r
+                        motion_type = 'inertial'
+                        em.move(motion_type,self.em_delta_t)
+                        # Metabolic conversion
+                        if (np.random.random() < self.metabolism['pyr_2_lac_rate']): em.set_shielding_constant(self.metabolism['lac_sigma'])
+                        elif (np.random.random() < self.metabolism['lac_2_pyr_rate']): em.set_shielding_constant(self.metabolism['pyr_sigma'])
+                        # Precession about main field + RF field
+                        r_avg = (old_r+em.r)/2.0
+                        Bz = self._find_Bz(r_avg,0.0,0.0,Gz)
+                        em.update_flip_quaternion(pulse.B1x[pulse_sample_no],pulse.B1y[pulse_sample_no],Bz,pulse.omega_rf,self.em_delta_t)
+            # Apply flip
             pulse_duration = pulse.delta_t*pulse.length
             for em in self.ems:
                 em.flip(pulse.omega_rf,pulse_duration)
