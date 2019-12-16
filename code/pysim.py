@@ -14,12 +14,12 @@ class Sim:
             em_shiedling_constants: (1D numpy array of nonnegative floats) the shielding constants of the ems
             em_equilibrium_magnetization: (positive float) the equilibrium magnetization of the ems
             em_delta_t: (positive float) the time step the ems use for diffusion, metabolic conversion, etc.
-            conversion_dict: (dictionary) dictionary of metabolic conversion parameters
             T1_map: (function) mapping from position to T1 value
             T2_map: (function) mapping from position to T2 value
-            D_map: (function) mapping from position to diffusion coefficient; if None then no diffusion occurs
             main_field: (positive float) the main field strength
             pulse_sequence: (list of Pulse objects) the pulse sequence
+            D_map: (function) mapping from position to diffusion coefficient; if None then no diffusion occurs
+            conversion_dict: (dictionary) dictionary of metabolic conversion parameters
         """
         # Check params
         if (em_magnetizations.dtype != np.float64) or (em_magnetizations.ndim != 2) or (em_magnetizations.shape[1] != 3):
@@ -47,7 +47,7 @@ class Sim:
             raise TypeError("main_field must be a positive float")
         if (not isinstance(pulse_sequence,list)) or (not all([isinstance(item,Pulse) for item in pulse_sequence])):
             raise TypeError("pulse_sequence must be a list of Pulse objects")
-        # Copy attributes
+        # Store data attributes
         self.gamma = em_gyromagnetic_ratio
         self.num_ems = em_positions.shape[0]
         self.em_delta_t = em_delta_t
@@ -82,7 +82,6 @@ class Sim:
         for pulse_no,pulse in zip(range(sequence_length),self.pulse_sequence):
             print('applying pulse number ' + str(pulse_no+1) + '/' + str(sequence_length) + ' with mode = ' + pulse.mode)
             mr_signal = self._apply_pulse(pulse)
-            #self._print_debug()
             if pulse.signal_collected:
                 mr_signal = self._demodulate(mr_signal,pulse)
                 mrs.append(mr_signal)
@@ -244,6 +243,12 @@ class Sim:
         Returns:
             mr_baseband: (1D numpy array of complex) demodulated MR signal
         """
+        # Check params
+        if not(mr_signal.ndim == 1 and mr_signal.dtype == np.complex):
+            raise TypeError("mr_signal must be a 1D numpy array of complex")
+        if not(isinstance(pulse,Pulse)):
+            raise TypeError("pulse must be a Pulse object")
+        # Demodulate MR signal
         num_samples = len(mr_signal)
         mr_baseband = np.empty(num_samples,dtype=complex)
         omega_0 = self.gamma*self.B0
@@ -256,7 +261,3 @@ class Sim:
         for sample_no in range(num_samples):
             mr_baseband[sample_no] = mr_signal[sample_no]*np.exp(1j*omega_0*readout_times[sample_no])
         return mr_baseband
-
-    def _print_debug(self):
-        for em_no,em in zip(range(len(self.ems)),self.ems):
-            print('mu['+str(em_no)+'] = '+ str(em.mu))

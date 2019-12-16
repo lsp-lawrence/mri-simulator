@@ -7,7 +7,10 @@ def reconstruct_from_2DFT(S,kx_max,ky_max):
     Returns:
         img: (2D numpy array of floats) MR image
     """
-    #S_phase_adjusted = adjust_phase(S)
+    # Check params
+    if not(S.ndim == 2 and S.dtype == np.float64):
+        raise TypeError("S must be a 2D numpy array of floats")
+    # Do the reconstruction
     S_dft = shift_2DFT(S)
     img_dft = np.abs(np.fft.ifft2(S_dft))
     img = ishift_2DFT(img_dft)

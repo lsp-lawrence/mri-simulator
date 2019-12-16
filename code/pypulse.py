@@ -6,18 +6,18 @@ class Pulse:
     def __init__(self,**kwargs):
         """Initalizes a pulse
         Params:
-            kwargs.get('delta_t'): (positive float) time step duration
+            kwargs.get('delta_t'): (positive float) time step
             kwargs.get('mode'): (string) pulse mode, either 'free' or 'excite'
             if kwargs.get('mode') == 'free':
-                kwargs.get('Gx'): (1D numpy array of floats) gradient in x for each time step
-                kwargs.get('Gy'): (1D numpy array of floats) gradient in y for each time step
-                kwargs.get('Gz'): (1D numpy array of floats) gradient in z for each time step
-                kwargs.get('readout'): (1D numpy array of bools) read ADC at time step?
+                kwargs.get('Gx'): (1D numpy array of floats) gradient in x for each time point
+                kwargs.get('Gy'): (1D numpy array of floats) gradient in y for each time point
+                kwargs.get('Gz'): (1D numpy array of floats) gradient in z for each time point
+                kwargs.get('readout'): (1D numpy array of bools) read ADC at time point?
             elif kwargs.get('mode') == 'excite':
-                kwargs.get('B1x'): (1D numpy array of floats) RF pulse modulation in x direction of rotating frame for each time step
-                kwargs.get('B1y'): (1D numpy array of floats) RF pulse modulation in y direction of rotating frame for each time step
-                kwargs.get('Gz'): (1D numpy array of floats) gradient in z direction for each time step
-                kwargs.get('omega_rf'): (positive float) angular carrier frequency of RF pulse           
+                kwargs.get('B1x'): (1D numpy array of floats) RF pulse modulation in x direction in rotating frame for each time point
+                kwargs.get('B1y'): (1D numpy array of floats) RF pulse modulation in y direction in rotating frame for each time point
+                kwargs.get('Gz'): (1D numpy array of floats) gradient in z direction for each time point
+                kwargs.get('omega_rf'): (positive float) angular carrier frequency of RF pulse     
         """
         # Check params
         if 'mode' not in kwargs:
@@ -26,10 +26,10 @@ class Pulse:
             raise ValueError("delta_t is a necessary param")
         mode = kwargs.get('mode')
         valid_modes = ['free','excite']
-        if (not isinstance(mode,str)) or (mode not in valid_modes):
+        if not(isinstance(mode,str) and mode in valid_modes):
             raise TypeError("mode must be a string and one of: " + ','.join(valid_modes))
         delta_t = kwargs.get('delta_t')
-        if (not isinstance(delta_t,float)) or (delta_t <= 0):
+        if not(isinstance(delta_t,float) and delta_t > 0.0):
             raise TypeError("delta_t must be a positive float")
         if mode == 'free':
             free_params = ['Gx','Gy','Gz','readout']
@@ -50,7 +50,7 @@ class Pulse:
                 raise TypeError("readout must be a 1D numpy array of bools")
             if not (len(Gx) == len(Gy) == len(Gz) == len(readout)):
                 raise ValueError("Gx, Gy, Gz, and readout must be the same length")
-            # Main
+            # Store data attributes
             self.mode = mode
             self.delta_t = delta_t
             self.Gx = Gx
@@ -78,7 +78,7 @@ class Pulse:
                 raise ValueError("B1x, B1y, Gz must be the same length")
             if (not isinstance(omega_rf,float)) or (omega_rf <= 0):
                 raise TypeError("omega_rf must be a positive float")
-            # Main
+            # Store data attributes
             self.mode = mode
             self.delta_t = delta_t
             self.B1x = B1x
