@@ -2,6 +2,112 @@ import numpy as np
 from pypulse import Pulse
 import matplotlib.pyplot as plt
 
+def generate_dw_pulse(pulse_tip,kread_time,gyromagnetic_ratio,delta_t,diffusion_gradients,diffusion_gradient_time,diffusion_time):
+    """Generates a diffusion-weighting pulse
+    Params:
+        pulse_tip: (Pulse object) tipping pulse in spin-echo sequence
+        kread_time: (positive float) time for readout of kspace line
+        gyromagnetic_ratio: (float) gyromagnetic ratio of species to be imaged
+        delta_t: (positive float) time step for simulation
+        read_all: (bool) if true, record the MR signal at all time steps during the read time
+        diffusion_gradients: (numpy 3-vector of nonnegative floats) magnitude of diffusion gradient in each spatial direction
+        diffusion_gradient_time: (positive float) time to apply diffusion gradient
+        diffusion_time: (positive float) time between positive and negative lobe of diffusion gradient.
+    Returns:
+        pulse: a diffusion-weighting pulse
+    """
+    # Check params
+    if not (isinstance(pulse_tip,Pulse)):
+        raise TypeError("pulse_tip must be a Pulse object")
+    if not (isinstance(kread_time,float) and kread_time > 0):
+        raise TypeError("kread_time must be a positive float")
+    if not isinstance(gyromagnetic_ratio,float):
+        raise TypeError("gyromagnetic_ratio must be a float")
+    if not (isinstance(delta_t,float) and delta_t > 0):
+        raise TypeError("delta_t must be a positive float")
+    if not(diffusion_gradients.shape == (3,) and diffusion_gradients.dtype == np.float64 and all([item>=0.0 for item in diffusion_gradients])):
+        raise TypeError("diffusion_gradients must be a numpy 3-vector of nonnegative floats")
+    if not (isinstance(diffusion_gradient_time,float) and diffusion_gradient_time > 0.0):
+        raise TypeError("diffusion_gradient_time must be a positive float")
+    if not (isinstance(diffusion_time,float) and diffusion_time > 0.0):
+        raise TypeError("diffusion_time must be a positive float")
+    if not (diffusion_time > diffusion_gradient_time):
+        raise ValueError("diffusion_time must be larger than diffusion_gradient_time")
+    # Common parameters
+    kread_len = int(kread_time/delta_t)
+    # Refocusing lobe in longitudinal direction
+    pulse_tip_length = pulse_tip.length
+    Gz_tip_amp = pulse_tip.Gz[0]
+    pulse_refocus_length = int(pulse_tip_length/2)
+    Gz_refocus_lobe = -Gz_tip_amp*np.ones(pulse_refocus_length)
+    Gx_refocus_lobe = np.zeros(pulse_refocus_length)
+    Gy_refocus_lobe = np.zeros(pulse_refocus_length)
+    Gz_read = np.zeros(kread_len)
+    Gy_read = np.zeros(kread_len)
+    Gx_read = np.zeros(kread_len)
+    # Compute diffusion-weighting pulses
+    diff_len = int((diffusion_time+diffusion_gradient_time)/delta_t)
+    diff_grad_len = int(diffusion_gradient_time/delta_t)
+    diff_wait_len = diff_len-2*diff_grad_len
+    Gx_diff = np.concatenate((diffusion_gradients[0]*np.ones(diff_grad_len),np.zeros(diff_wait_len),-diffusion_gradients[0]*np.ones(diff_grad_len)))
+    Gy_diff = np.concatenate((diffusion_gradients[1]*np.ones(diff_grad_len),np.zeros(diff_wait_len),-diffusion_gradients[1]*np.ones(diff_grad_len)))
+    Gz_diff = np.concatenate((diffusion_gradients[2]*np.ones(diff_grad_len),np.zeros(diff_wait_len),-diffusion_gradients[2]*np.ones(diff_grad_len)))
+    # Compute gradients
+    Gz = np.concatenate((Gz_refocus_lobe,Gz_diff,Gz_read))
+    Gy = np.concatenate((Gy_refocus_lobe,Gy_diff,Gy_read))
+    Gx = np.concatenate((Gx_refocus_lobe,Gx_diff,Gx_read))
+    # Readout indices
+    readout = np.ones(kread_len,dtype=bool)
+    readout = np.concatenate((np.zeros(pulse_refocus_length+diff_len,dtype=bool),readout))
+    # Bundle into Pulse object
+    pulse = Pulse(mode='free',Gx=Gx,Gy=Gy,Gz=Gz,readout=readout,delta_t=delta_t)
+    return pulse
+
+def generate_DW_sequence(main_field,Gz_amplitude,slice_width,gyromagnetic_ratio,kread_time,delta_t,diffusion_gradients,diffusion_gradient_time,diffusion_time):
+    """Generates a DW pulse sequence (no spatial encoding)
+    Params:
+        main_field: (positive float) main magnetic field
+        Gz_amplitude: (positive float) z-gradient amplitude
+        slice_width: (postive float) width of the slice
+        gyromagnetic_ratio: (float) gyromagnetic ratio of species to be imaged
+        kread_time: (positive float) time to readout kspace line
+        delta_t: (positive float) time step for simulation
+        diffusion_gradients: (numpy 3-vector of nonnegative floats) magnitude of diffusion gradient in each spatial direction
+        diffusion_gradient_time: (positive float) time to apply diffusion gradient
+        diffusion_time: (positive float) time between positive and negative lobe of diffusion gradient.
+    Returns:
+        pulse_sequence: (list of Pulse objects) a 2DFT pulse sequence
+    Note:
+        repitition_time must be greater than the excitation pulse + kspace readout pulse lengths
+    """
+    # Check params
+    if not (isinstance(kread_time,float) and kread_time > 0):
+        raise TypeError("kread_time must be a positive float")
+    if not isinstance(gyromagnetic_ratio,float):
+        raise TypeError("gyromagnetic_ratio must be a float")
+    if not (isinstance(delta_t,float) and delta_t > 0):
+        raise TypeError("delta_t must be a positive float")
+    if not(isinstance(main_field,float) and main_field > 0):
+        raise TypeError('main_field must be a positive float')
+    if not (isinstance(Gz_amplitude,float) and Gz_amplitude > 0):
+        raise TypeError('Gz_amplitude must be a positive float')
+    if not(isinstance(slice_width,float) and slice_width > 0):
+        raise TypeError('slice_width must be a positive float')
+    if not(diffusion_gradients.shape == (3,) and diffusion_gradients.dtype == np.float64 and all([item>=0.0 for item in diffusion_gradients])):
+        raise TypeError("diffusion_gradients must be a numpy 3-vector of nonnegative floats")
+    if not (isinstance(diffusion_gradient_time,float) and diffusion_gradient_time > 0.0):
+        raise TypeError("diffusion_gradient_time must be a positive float")
+    if not (isinstance(diffusion_time,float) and diffusion_time > 0.0):
+        raise TypeError("diffusion_time must be a positive float")
+    if not (diffusion_time > diffusion_gradient_time):
+        raise ValueError("diffusion_time must be larger than diffusion_gradient_time")
+    # Create pulse sequence
+    tip_angle = np.pi/2.0
+    pulse_tip = generate_tipping_pulse(gyromagnetic_ratio,main_field,Gz_amplitude,slice_width,tip_angle,delta_t)
+    dw_pulse = generate_dw_pulse(pulse_tip,kread_time,gyromagnetic_ratio,delta_t,diffusion_gradients,diffusion_gradient_time,diffusion_time)
+    pulse_sequence = [pulse_tip,dw_pulse]
+    return pulse_sequence
+
 def generate_DWI_sequence(main_field,Gz_amplitude,slice_width,gyromagnetic_ratio,fe_sample_radius,pe_sample_radius,kx_max,ky_max,kmove_time,kread_time,repetition_time,delta_t,read_all,diffusion_gradients,diffusion_gradient_time,diffusion_time):
     """Generates a DWI pulse sequence
     Params:
